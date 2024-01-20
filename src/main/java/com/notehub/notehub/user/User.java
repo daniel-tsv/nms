@@ -1,7 +1,10 @@
 package com.notehub.notehub.user;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.notehub.notehub.note.Note;
 
@@ -25,31 +28,35 @@ import lombok.ToString;
 @Table(name = "users")
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = { "uuid" })
-@ToString(exclude = { "notes" })
+@EqualsAndHashCode(of = "uuid")
+@ToString(exclude = { "notes", "password" })
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid;
 
-    @NotBlank(message = "Username cannot be empty or consist only of whitespace characters")
+    @NotBlank
+    @Size(min = 2, max = 255)
     @Column(unique = true, nullable = false, length = 255)
-    @Size(min = 2, max = 255, message = "Username length must be between 2 and 255 characters")
     private String username;
 
-    @NotBlank(message = "Password cannot be empty or consist only of whitespace characters")
+    @NotBlank
     @Column(nullable = false, length = 255)
     private String password;
 
     @Email
-    @NotBlank(message = "Email cannot be empty or consist only of whitespace characters")
+    @NotBlank
     @Column(unique = true, nullable = false, length = 255)
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Note> notes;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Instant createdAt;
 
     public User(String username, String password, String email) {
         this.username = username;
