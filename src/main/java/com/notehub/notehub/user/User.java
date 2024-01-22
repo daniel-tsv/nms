@@ -19,14 +19,17 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "users")
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @EqualsAndHashCode(of = "uuid")
 @ToString(exclude = { "notes", "password" })
@@ -35,32 +38,36 @@ public class User {
     @Id
     @Column(updatable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    UUID uuid;
 
     @NotBlank
     @Size(min = 2, max = 255)
     @Column(unique = true, nullable = false, length = 255)
-    private String username;
+    String username;
 
     @NotBlank
     @Column(nullable = false, length = 255)
-    private String password;
+    String password;
 
     @Email
     @NotBlank
     @Column(unique = true, nullable = false, length = 255)
-    private String email;
+    String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Note> notes;
+    List<Note> notes;
 
     @CreationTimestamp
     @Column(updatable = false)
-    private Instant createdAt;
+    Instant createdAt;
 
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
-        this.email = email;
+        this.email = email.toLowerCase();
+    }
+
+    public void setEmail(String email) {
+        this.email = email.toLowerCase();
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -67,7 +68,6 @@ public class UserRestController {
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody @Validated UserDTO userDTO,
             BindingResult br) {
-
         userDTOValidator.validate(userDTO, br);
 
         if (br.hasErrors())
@@ -82,6 +82,29 @@ public class UserRestController {
                 .buildAndExpand(createdUser.getUuid()).toUri();
 
         return ResponseEntity.created(location).body(userMapper.convertToDTO(createdUser));
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") UUID id, @RequestBody @Validated UserDTO userDTO,
+            BindingResult br) {
+        userDTOValidator.validate(userDTO, br);
+
+        if (br.hasErrors())
+            throw new InvalidUserException(
+                    "user is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+                            .collect(Collectors.joining("; ")));
+
+        User user = userMapper.convertToEntity(userDTO);
+        UserDTO updatedUserDTO = userMapper.convertToDTO(userService.updateUser(id, user));
+
+        return ResponseEntity.ok(updatedUserDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public String deleteUser(@PathVariable("id") UUID id) {
+        userService.deleteUser(id);
+        return "Successfully deleted user with id: {id}";
     }
 
     @ExceptionHandler
@@ -109,8 +132,16 @@ public class UserRestController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UserErrorResponse illegalArgumentException(InvalidUserException ex, HttpServletRequest request) {
+    public UserErrorResponse invalidUserException(InvalidUserException ex, HttpServletRequest request) {
         return new UserErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Invalid user data",
+                ex.getMessage(),
+                request.getRequestURI());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public UserErrorResponse illegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        return new UserErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Passed arguments are invalid",
                 ex.getMessage(),
                 request.getRequestURI());
     }
