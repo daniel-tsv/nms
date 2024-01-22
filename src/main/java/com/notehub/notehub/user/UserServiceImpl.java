@@ -34,27 +34,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> listUsers(int pageNumber, int pageSize, String direction, String sortBy) {
-        Sort.Direction sortingDirection = "asc".equals(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
-
-        return userRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortingDirection, sortBy)));
+    public Page<User> listUsers(int page, int size, String direction, String sortBy) {
+        Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        return userRepository.findAll(PageRequest.of(page, size, sort));
     }
 
-    @Transactional
     @Override
+    @Transactional
     public User createUser(User user) {
         return userRepository.save(user);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public User updateUser(UUID id, User updatedUser) {
         updatedUser.setUuid(id);
         return userRepository.save(updatedUser);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
     }

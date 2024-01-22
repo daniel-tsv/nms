@@ -20,43 +20,46 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "notes")
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@EqualsAndHashCode(of = { "uuid" })
+@EqualsAndHashCode(of = "uuid")
 @ToString(exclude = { "contents", "user" })
 public class Note {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false)
-    private UUID uuid;
+    UUID uuid;
 
-    @NotBlank(message = "Title cannot be empty or consist only of whitespace characters")
+    @NotBlank
+    @Size(min = 1, max = 255)
     @Column(unique = true, nullable = false, length = 255)
-    @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")
-    private String title;
+    String title;
 
     @Lob
-    private String contents;
+    String contents;
 
     @NotNull
     @ManyToOne
     @JoinColumn(name = "user_uuid")
-    private User user;
+    User user;
 
     @CreationTimestamp
     @Column(updatable = false)
-    private Instant createdAt;
+    Instant createdAt;
 
     @UpdateTimestamp
-    private Instant updatedAt;
+    Instant updatedAt;
 
     public Note(String title, User user) {
         this.title = title;

@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,13 +28,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.notehub.notehub.user.User;
 import com.notehub.notehub.user.UserDTO;
 import com.notehub.notehub.user.UserDTOValidator;
-import com.notehub.notehub.user.UserErrorResponse;
 import com.notehub.notehub.user.UserMapper;
 import com.notehub.notehub.user.UserService;
 import com.notehub.notehub.user.exceptions.EmailAlreadyExistsException;
 import com.notehub.notehub.user.exceptions.InvalidUserException;
 import com.notehub.notehub.user.exceptions.UserNotFoundException;
 import com.notehub.notehub.user.exceptions.UsernameAlreadyExistsException;
+import com.notehub.notehub.util.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -49,8 +50,8 @@ public class UserRestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> findByUUID(@PathVariable(name = "id") UUID id) {
-        return ResponseEntity.ok(userMapper.convertToDTO(userService.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("The user with this id does not exist"))));
+        return ResponseEntity.ok(userMapper.toDTO(userService.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with this id does not exist"))));
     }
 
     @GetMapping
@@ -62,12 +63,12 @@ public class UserRestController {
 
         List<User> users = userService.listUsers(page, size, direction, sortBy).getContent();
 
-        return ResponseEntity.ok(userMapper.convertToDTO(users));
+        return ResponseEntity.ok(userMapper.toDTO(users));
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody @Validated UserDTO userDTO,
-            BindingResult br) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Validated UserDTO userDTO, BindingResult br) {
+
         userDTOValidator.validate(userDTO, br);
 
         if (br.hasErrors())
@@ -75,18 +76,18 @@ public class UserRestController {
                     "user is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        User user = userMapper.convertToEntity(userDTO);
+        User user = userMapper.toEntity(userDTO);
         User createdUser = userService.createUser(user);
-
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(createdUser.getUuid()).toUri();
 
-        return ResponseEntity.created(location).body(userMapper.convertToDTO(createdUser));
+        return ResponseEntity.created(location).body(userMapper.toDTO(createdUser));
     }
 
-    @PostMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable("id") UUID id, @RequestBody @Validated UserDTO userDTO,
             BindingResult br) {
+
         userDTOValidator.validate(userDTO, br);
 
         if (br.hasErrors())
@@ -94,63 +95,62 @@ public class UserRestController {
                     "user is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        User user = userMapper.convertToEntity(userDTO);
-        UserDTO updatedUserDTO = userMapper.convertToDTO(userService.updateUser(id, user));
+        User user = userMapper.toEntity(userDTO);
+        UserDTO updatedUserDTO = userMapper.toDTO(userService.updateUser(id, user));
 
         return ResponseEntity.ok(updatedUserDTO);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public String deleteUser(@PathVariable("id") UUID id) {
+    public ResponseEntity<String> deleteUser(@PathVariable("id") UUID id) {
         userService.deleteUser(id);
-        return "Successfully deleted user with id: {id}";
+        return ResponseEntity.ok("Successfully deleted user with id: {id}");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public UserErrorResponse userNotFoundHandler(UserNotFoundException ex, HttpServletRequest request) {
-        return new UserErrorResponse(Instant.now(), HttpStatus.NOT_FOUND, "User not found", ex.getMessage(),
+    public ErrorResponse userNotFoundHandler(UserNotFoundException ex, HttpServletRequest request) {
+        return new ErrorResponse(Instant.now(), HttpStatus.NOT_FOUND, "User not found", ex.getMessage(),
                 request.getRequestURI());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public UserErrorResponse usernameAlreadyExists(UsernameAlreadyExistsException ex, HttpServletRequest request) {
-        return new UserErrorResponse(Instant.now(), HttpStatus.CONFLICT, "This username is already taken",
+    public ErrorResponse usernameAlreadyExists(UsernameAlreadyExistsException ex, HttpServletRequest request) {
+        return new ErrorResponse(Instant.now(), HttpStatus.CONFLICT, "This username is already taken",
                 ex.getMessage(),
                 request.getRequestURI());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public UserErrorResponse emailAlreadyExists(EmailAlreadyExistsException ex, HttpServletRequest request) {
-        return new UserErrorResponse(Instant.now(), HttpStatus.CONFLICT, "This email is already taken",
+    public ErrorResponse emailAlreadyExists(EmailAlreadyExistsException ex, HttpServletRequest request) {
+        return new ErrorResponse(Instant.now(), HttpStatus.CONFLICT, "This email is already taken",
                 ex.getMessage(),
                 request.getRequestURI());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UserErrorResponse invalidUserException(InvalidUserException ex, HttpServletRequest request) {
-        return new UserErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Invalid user data",
+    public ErrorResponse invalidUserException(InvalidUserException ex, HttpServletRequest request) {
+        return new ErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Invalid user data",
                 ex.getMessage(),
                 request.getRequestURI());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UserErrorResponse illegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
-        return new UserErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Passed arguments are invalid",
+    public ErrorResponse illegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        return new ErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Passed arguments are invalid",
                 ex.getMessage(),
                 request.getRequestURI());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UserErrorResponse methodArgumentTypeMismatchHandler(MethodArgumentTypeMismatchException ex,
+    public ErrorResponse methodArgumentTypeMismatchHandler(MethodArgumentTypeMismatchException ex,
             HttpServletRequest request) {
-        return new UserErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Invalid Argument",
+        return new ErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST, "Invalid Argument",
                 "The provided UUID is not valid.", request.getRequestURI());
     }
 }

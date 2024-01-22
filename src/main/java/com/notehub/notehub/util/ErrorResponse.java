@@ -1,4 +1,4 @@
-package com.notehub.notehub.user;
+package com.notehub.notehub.util;
 
 import java.time.Instant;
 
@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserErrorResponse {
+public class ErrorResponse {
     private Instant timestamp;
     private HttpStatus status;
     private String error;

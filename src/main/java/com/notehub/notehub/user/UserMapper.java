@@ -7,11 +7,11 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface UserMapper {
 
-    User convertToEntity(UserDTO userDTO);
+    User toEntity(UserDTO userDTO);
 
-    UserDTO convertToDTO(User user);
+    UserDTO toDTO(User user);
 
-    List<User> convertToEntity(List<UserDTO> userDTOs);
+    List<User> toEntity(List<UserDTO> userDTOs);
 
-    List<UserDTO> convertToDTO(List<User> users);
+    List<UserDTO> toDTO(List<User> users);
 }
