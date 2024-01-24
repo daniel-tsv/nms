@@ -47,7 +47,7 @@ public class NoteApiController {
     private final NoteMapper noteMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<NoteDTO> findByUUID(@PathVariable UUID id) {
+    public ResponseEntity<NoteDTO> findByUUID(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(noteMapper.toDTO(noteService.findById(id)
                 .orElseThrow(() -> new NoteNotFoundException("Note with this id does not exist"))));
     }
@@ -79,7 +79,7 @@ public class NoteApiController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<NoteDTO> updateNote(@PathVariable UUID id,
+    public ResponseEntity<NoteDTO> updateNote(@PathVariable("id") UUID id,
             @RequestBody @Validated NoteDTO noteDTO, BindingResult br) {
 
         noteDTOValidator.validate(noteDTO, br);
@@ -95,7 +95,7 @@ public class NoteApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteNote(@PathVariable UUID id) {
+    public ResponseEntity<String> deleteNote(@PathVariable("id") UUID id) {
         noteService.deleteNote(id);
         return ResponseEntity.ok("Successfully deleted note with id: {id}");
     }

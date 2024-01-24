@@ -49,7 +49,7 @@ public class UserApiController {
     private final UserMapper userMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> findByUUID(@PathVariable(name = "id") UUID id) {
+    public ResponseEntity<UserDTO> findByUUID(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(userMapper.toDTO(userService.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with this id does not exist"))));
     }
