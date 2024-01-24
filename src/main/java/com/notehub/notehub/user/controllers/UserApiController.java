@@ -42,7 +42,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(value = "/api/users")
 @RequiredArgsConstructor
-public class UserRestController {
+public class UserApiController {
 
     private final UserService userService;
     private final UserDTOValidator userDTOValidator;
@@ -60,10 +60,7 @@ public class UserRestController {
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
             @RequestParam(name = "sort", required = false, defaultValue = "uuid") String sortBy) {
-
-        List<User> users = userService.listUsers(page, size, direction, sortBy).getContent();
-
-        return ResponseEntity.ok(userMapper.toDTO(users));
+        return ResponseEntity.ok(userMapper.toDTO(userService.listUsers(page, size, direction, sortBy).getContent()));
     }
 
     @PostMapping
@@ -76,8 +73,7 @@ public class UserRestController {
                     "user is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        User user = userMapper.toEntity(userDTO);
-        User createdUser = userService.createUser(user);
+        User createdUser = userService.createUser(userMapper.toEntity(userDTO));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(createdUser.getUuid()).toUri();
 
@@ -95,10 +91,9 @@ public class UserRestController {
                     "user is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        User user = userMapper.toEntity(userDTO);
-        UserDTO updatedUserDTO = userMapper.toDTO(userService.updateUser(id, user));
+        User updatedUser = userService.updateUser(id, userMapper.toEntity(userDTO));
 
-        return ResponseEntity.ok(updatedUserDTO);
+        return ResponseEntity.ok(userMapper.toDTO(updatedUser));
     }
 
     @DeleteMapping("/{id}")

@@ -32,7 +32,6 @@ public class NoteServiceImpl implements NoteService {
     public Page<Note> listNotes(int page, int size, String direction, String sortBy) {
         Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
-
         return noteRepository.findAll(PageRequest.of(page, size, sort));
     }
 
@@ -46,7 +45,6 @@ public class NoteServiceImpl implements NoteService {
     @Transactional
     public Note updateNote(UUID id, Note updatedNote) {
         updatedNote.setUuid(id);
-
         return noteRepository.save(updatedNote);
     }
 

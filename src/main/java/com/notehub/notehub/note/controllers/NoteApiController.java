@@ -40,7 +40,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(value = "/api/notes")
 @RequiredArgsConstructor
-public class NoteRestController {
+public class NoteApiController {
 
     private final NoteService noteService;
     private final NoteDTOValidator noteDTOValidator;
@@ -58,10 +58,7 @@ public class NoteRestController {
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
             @RequestParam(name = "sort", required = false, defaultValue = "uuid") String sortBy) {
-
-        List<Note> notes = noteService.listNotes(page, size, direction, sortBy).getContent();
-
-        return ResponseEntity.ok(noteMapper.toDTO(notes));
+        return ResponseEntity.ok(noteMapper.toDTO(noteService.listNotes(page, size, direction, sortBy).getContent()));
     }
 
     @PostMapping
@@ -74,8 +71,7 @@ public class NoteRestController {
                     "note is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        Note note = noteMapper.toEntity(noteDTO);
-        Note createdNote = noteService.createNote(note);
+        Note createdNote = noteService.createNote(noteMapper.toEntity(noteDTO));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(createdNote.getUuid()).toUri();
 
@@ -83,8 +79,8 @@ public class NoteRestController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<NoteDTO> updateNote(@PathVariable UUID id, @RequestBody @Validated NoteDTO noteDTO,
-            BindingResult br) {
+    public ResponseEntity<NoteDTO> updateNote(@PathVariable UUID id,
+            @RequestBody @Validated NoteDTO noteDTO, BindingResult br) {
 
         noteDTOValidator.validate(noteDTO, br);
 
@@ -93,8 +89,7 @@ public class NoteRestController {
                     "note is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        Note note = noteMapper.toEntity(noteDTO);
-        Note updatedNote = noteService.updateNote(id, note);
+        Note updatedNote = noteService.updateNote(id, noteMapper.toEntity(noteDTO));
 
         return ResponseEntity.ok(noteMapper.toDTO(updatedNote));
     }
