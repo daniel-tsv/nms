@@ -20,14 +20,14 @@ public class UserDTO {
     @JsonIgnore
     UUID uuid;
 
-    @NotBlank(message = "Username cannot be empty or consist only of whitespace characters")
+    @NotBlank(message = "Username cannot be empty")
     @Size(min = 2, max = 255, message = "Username length must be between 2 and 255 characters")
     String username;
 
-    @NotBlank(message = "Password cannot be empty or consist only of whitespace characters")
+    @NotBlank(message = "Password cannot be empty")
     String password;
 
-    @NotBlank(message = "Email cannot be empty or consist only of whitespace characters")
+    @NotBlank(message = "Email cannot be empty")
     @Email(message = "Email should be valid")
     String email;
 

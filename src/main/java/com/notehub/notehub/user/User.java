@@ -1,19 +1,26 @@
 package com.notehub.notehub.user;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.notehub.notehub.note.Note;
+import com.notehub.notehub.role.Role;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -22,7 +29,6 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
@@ -30,7 +36,6 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "users")
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
 @EqualsAndHashCode(of = "uuid")
 @ToString(exclude = { "notes", "password" })
 public class User {
@@ -61,10 +66,35 @@ public class User {
     @Column(updatable = false)
     Instant createdAt;
 
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    Set<Role> roles;
+
+    boolean isAccountNonExpired;
+
+    boolean isAccountNonLocked;
+
+    boolean isCredentialsNonExpired;
+
+    boolean isEnabled;
+
+    public User() {
+        this.roles = new HashSet<>();
+        isAccountNonExpired = true;
+        isAccountNonLocked = true;
+        isCredentialsNonExpired = true;
+        isEnabled = true;
+    }
+
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email.toLowerCase();
+        this.roles = new HashSet<>();
+        isAccountNonExpired = true;
+        isAccountNonLocked = true;
+        isCredentialsNonExpired = true;
+        isEnabled = true;
     }
 
     public void setEmail(String email) {
