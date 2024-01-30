@@ -22,11 +22,11 @@ public class NotehubApplication {
 	CommandLineRunner run(RoleService roleService, UserService userService, PasswordEncoder passwordEncoder) {
 		return args -> {
 
-			if (roleService.findByAuthority("ROLE_ADMIN").isPresent())
+			if (roleService.findByAuthority("ADMIN").isPresent())
 				return;
 
-			Role userRole = new Role("ROLE_USER");
-			Role adminRole = new Role("ROLE_ADMIN");
+			Role userRole = new Role("USER");
+			Role adminRole = new Role("ADMIN");
 
 			User admin = new User("admin", passwordEncoder.encode("admin"), "admin@admin.com");
 			User user = new User("testUser", passwordEncoder.encode("testUser"), "test-user@user.com");

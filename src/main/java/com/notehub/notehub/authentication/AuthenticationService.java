@@ -1,15 +1,20 @@
 package com.notehub.notehub.authentication;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.notehub.notehub.authentication.dto.LoginDTO;
+import com.notehub.notehub.authentication.dto.LoginResponceDTO;
 import com.notehub.notehub.authentication.dto.RegisterDTO;
 import com.notehub.notehub.role.Role;
 import com.notehub.notehub.role.RoleNotFoundException;
 import com.notehub.notehub.role.RoleService;
+import com.notehub.notehub.security.TokenService;
 import com.notehub.notehub.user.User;
 import com.notehub.notehub.user.UserDTO;
 import com.notehub.notehub.user.UserMapper;
@@ -26,20 +31,32 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserMapper userMapper;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
-    public UserDTO loginUser(LoginDTO loginDTO) {
+    public LoginResponceDTO loginUser(LoginDTO loginDTO) {
 
-        User user = userService.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException(loginDTO.getUsername()));
+        try {
+            Authentication auth = authenticationManager
+                    .authenticate(
+                            new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
 
-        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
-            throw new WrongCredentialsException("Invalid user credentials");
+            String token = tokenService.generateJWT(auth);
+            User user = userService.findByUsername(loginDTO.getUsername())
+                    .orElseThrow(() -> new InvalidCredentialsException(
+                            "User for username '" + loginDTO.getUsername() + "' not found"));
 
-        return userMapper.toDTO(user);
+            UserDTO convertedUser = userMapper.toDTO(user);
+
+            return new LoginResponceDTO(convertedUser, token);
+
+        } catch (AuthenticationException e) {
+            throw new InvalidCredentialsException("Entered user credentials are invalid");
+        }
     }
 
     @Transactional
-    public UserDTO registerUser(RegisterDTO registerDTO) {
+    public LoginResponceDTO registerUser(RegisterDTO registerDTO) {
 
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
         Role userRole = roleService.findByAuthority("ROLE_USER")
@@ -48,7 +65,9 @@ public class AuthenticationService {
         User user = new User(registerDTO.getUsername(), encodedPassword, registerDTO.getEmail());
         user.getRoles().add(userRole);
 
-        return userMapper.toDTO(userService.createUser(user));
+        userService.createUser(user);
+
+        return loginUser(new LoginDTO(registerDTO.getUsername(), registerDTO.getPassword()));
     }
 
 }
