@@ -59,7 +59,7 @@ public class AuthenticationService {
     public LoginResponceDTO registerUser(RegisterDTO registerDTO) {
 
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
-        Role userRole = roleService.findByAuthority("ROLE_USER")
+        Role userRole = roleService.findByAuthority("USER")
                 .orElseThrow(() -> new RoleNotFoundException("User role not found"));
 
         User user = new User(registerDTO.getUsername(), encodedPassword, registerDTO.getEmail());
