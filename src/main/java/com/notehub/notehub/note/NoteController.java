@@ -1,4 +1,4 @@
-package com.notehub.notehub.note.controllers;
+package com.notehub.notehub.note;
 
 import java.net.URI;
 import java.time.Instant;
@@ -24,11 +24,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.notehub.notehub.note.Note;
-import com.notehub.notehub.note.NoteDTO;
-import com.notehub.notehub.note.NoteDTOValidator;
-import com.notehub.notehub.note.NoteMapper;
-import com.notehub.notehub.note.NoteService;
 import com.notehub.notehub.note.exceptions.InvalidNoteException;
 import com.notehub.notehub.note.exceptions.NoteAlreadyExistsException;
 import com.notehub.notehub.note.exceptions.NoteNotFoundException;
@@ -38,9 +33,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(value = "/api/notes")
+@RequestMapping("/notes")
 @RequiredArgsConstructor
-public class NoteApiController {
+public class NoteController {
 
     private final NoteService noteService;
     private final NoteDTOValidator noteDTOValidator;

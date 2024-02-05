@@ -2,8 +2,6 @@ package com.notehub.notehub.role;
 
 import java.util.UUID;
 
-import org.springframework.security.core.GrantedAuthority;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +20,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @EqualsAndHashCode(of = "uuid")
-public class Role implements GrantedAuthority {
+public class Role {
 
     @Id
     @Column(updatable = false)
@@ -30,14 +28,9 @@ public class Role implements GrantedAuthority {
     UUID uuid;
 
     @Column(unique = true, nullable = false, length = 255)
-    String authority;
+    String name;
 
-    public Role(String authority) {
-        this.authority = authority;
-    }
-
-    @Override
-    public String getAuthority() {
-        return authority;
+    public Role(String name) {
+        this.name = name;
     }
 }

@@ -1,10 +1,13 @@
 package com.notehub.notehub.security;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.notehub.notehub.role.Role;
 import com.notehub.notehub.user.User;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +19,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles();
+        return user.getRoles().stream().map(Role::getName).map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
     }
 
     @Override

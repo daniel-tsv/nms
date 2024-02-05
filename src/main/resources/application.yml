@@ -6,3 +6,6 @@ spring.datasource:
 spring.jpa:
   hibernate.ddl-auto: create-drop
   show-sql: true
+
+notehub.security:
+  jwt.token-expiration-millis: 604800000 # 1 week

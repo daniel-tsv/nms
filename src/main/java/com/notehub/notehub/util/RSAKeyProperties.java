@@ -23,5 +23,4 @@ public class RSAKeyProperties {
         this.privateKey = (RSAPrivateKey) pair.getPrivate();
     }
 
-    // or implement directly as a bean in spring security config?
 }

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.notehub.notehub.authentication.dto.LoginDTO;
-import com.notehub.notehub.authentication.dto.LoginResponceDTO;
 import com.notehub.notehub.authentication.dto.RegisterDTO;
+import com.notehub.notehub.authentication.dto.ResponceDTO;
 import com.notehub.notehub.role.Role;
 import com.notehub.notehub.role.RoleNotFoundException;
 import com.notehub.notehub.role.RoleService;
@@ -34,7 +34,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    public LoginResponceDTO loginUser(LoginDTO loginDTO) {
+    public ResponceDTO loginUser(LoginDTO loginDTO) {
 
         try {
             Authentication auth = authenticationManager
@@ -48,7 +48,7 @@ public class AuthenticationService {
 
             UserDTO convertedUser = userMapper.toDTO(user);
 
-            return new LoginResponceDTO(convertedUser, token);
+            return new ResponceDTO(convertedUser, token);
 
         } catch (AuthenticationException e) {
             throw new InvalidCredentialsException("Entered user credentials are invalid");
@@ -56,7 +56,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public LoginResponceDTO registerUser(RegisterDTO registerDTO) {
+    public ResponceDTO registerUser(RegisterDTO registerDTO) {
 
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
         Role userRole = roleService.findByAuthority("USER")

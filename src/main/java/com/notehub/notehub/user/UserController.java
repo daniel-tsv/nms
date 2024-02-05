@@ -1,4 +1,4 @@
-package com.notehub.notehub.user.controllers;
+package com.notehub.notehub.user;
 
 import java.net.URI;
 import java.time.Instant;
@@ -25,11 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.notehub.notehub.user.User;
-import com.notehub.notehub.user.UserDTO;
-import com.notehub.notehub.user.UserDTOValidator;
-import com.notehub.notehub.user.UserMapper;
-import com.notehub.notehub.user.UserService;
 import com.notehub.notehub.user.exceptions.EmailAlreadyExistsException;
 import com.notehub.notehub.user.exceptions.InvalidUserException;
 import com.notehub.notehub.user.exceptions.UserNotFoundException;
@@ -40,9 +35,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(value = "/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
-public class UserApiController {
+public class UserController {
 
     private final UserService userService;
     private final UserDTOValidator userDTOValidator;

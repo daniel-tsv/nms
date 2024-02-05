@@ -29,7 +29,7 @@ public class NotehubApplication {
 			Role adminRole = new Role("ADMIN");
 
 			User admin = new User("admin", passwordEncoder.encode("admin"), "admin@admin.com");
-			User user = new User("testUser", passwordEncoder.encode("testUser"), "test-user@user.com");
+			User user = new User("user", passwordEncoder.encode("user"), "user@user.com");
 
 			admin.getRoles().add(adminRole);
 			user.getRoles().add(userRole);
