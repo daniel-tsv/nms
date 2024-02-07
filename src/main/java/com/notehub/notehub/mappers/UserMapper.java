@@ -6,8 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import com.notehub.notehub.dto.UserDTO;
-
-import entities.User;
+import com.notehub.notehub.entities.User;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {

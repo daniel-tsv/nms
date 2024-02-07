@@ -2,7 +2,7 @@ package com.notehub.notehub.services.role;
 
 import java.util.Optional;
 
-import entities.Role;
+import com.notehub.notehub.entities.Role;
 
 public interface RoleService {
 

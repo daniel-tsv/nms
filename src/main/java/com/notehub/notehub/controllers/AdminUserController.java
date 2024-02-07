@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.notehub.notehub.dto.UserDTO;
+import com.notehub.notehub.entities.User;
 import com.notehub.notehub.exceptions.note.InvalidNoteException;
 import com.notehub.notehub.exceptions.user.InvalidUserException;
 import com.notehub.notehub.exceptions.user.UserNotFoundException;
@@ -28,7 +29,6 @@ import com.notehub.notehub.mappers.UserMapper;
 import com.notehub.notehub.services.user.UserService;
 import com.notehub.notehub.validators.UserValidator;
 
-import entities.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController

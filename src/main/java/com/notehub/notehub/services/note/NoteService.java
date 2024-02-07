@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
-import entities.Note;
+import com.notehub.notehub.entities.Note;
 
 public interface NoteService {
     Optional<Note> findById(UUID id);

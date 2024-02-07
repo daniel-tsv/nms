@@ -1,4 +1,4 @@
-package entities;
+package com.notehub.notehub.entities;
 
 import java.time.Instant;
 import java.util.UUID;

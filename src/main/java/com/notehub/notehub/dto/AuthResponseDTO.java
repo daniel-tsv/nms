@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationResponseDTO {
+public class AuthResponseDTO {
     UserDTO userDTO;
     String jwtToken;
 }

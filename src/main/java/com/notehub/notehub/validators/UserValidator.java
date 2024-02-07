@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.notehub.notehub.entities.User;
 import com.notehub.notehub.services.user.UserService;
 
-import entities.User;
 import lombok.RequiredArgsConstructor;
 
 @Component

@@ -9,9 +9,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.notehub.notehub.entities.Note;
 import com.notehub.notehub.repositories.NoteRepository;
 
-import entities.Note;
 import lombok.RequiredArgsConstructor;
 
 @Service

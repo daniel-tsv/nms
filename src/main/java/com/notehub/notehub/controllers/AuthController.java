@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.notehub.notehub.dto.AuthenticationResponseDTO;
+import com.notehub.notehub.dto.AuthResponseDTO;
 import com.notehub.notehub.dto.LoginDTO;
 import com.notehub.notehub.dto.RegisterDTO;
 import com.notehub.notehub.services.AuthenticationService;
@@ -24,17 +24,17 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class AuthController {
 
     private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public AuthenticationResponseDTO loginUser(@RequestBody LoginDTO loginDTO) {
+    public AuthResponseDTO loginUser(@RequestBody LoginDTO loginDTO) {
         return authenticationService.loginUser(loginDTO);
     }
 
     @PostMapping("/register")
-    public AuthenticationResponseDTO registerUser(@RequestBody RegisterDTO registerDTO) {
+    public AuthResponseDTO registerUser(@RequestBody RegisterDTO registerDTO) {
         return authenticationService.registerUser(registerDTO);
     }
 

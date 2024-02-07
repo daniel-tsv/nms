@@ -10,17 +10,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.notehub.notehub.dto.AuthenticationResponseDTO;
+import com.notehub.notehub.dto.AuthResponseDTO;
 import com.notehub.notehub.dto.LoginDTO;
 import com.notehub.notehub.dto.RegisterDTO;
 import com.notehub.notehub.dto.UserDTO;
+import com.notehub.notehub.entities.Role;
+import com.notehub.notehub.entities.User;
 import com.notehub.notehub.exceptions.role.RoleNotFoundException;
 import com.notehub.notehub.mappers.UserMapper;
 import com.notehub.notehub.services.role.RoleService;
 import com.notehub.notehub.services.user.UserService;
 
-import entities.Role;
-import entities.User;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,7 +35,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    public AuthenticationResponseDTO loginUser(LoginDTO loginDTO) {
+    public AuthResponseDTO loginUser(LoginDTO loginDTO) {
 
         try {
             Authentication auth = authenticationManager
@@ -49,7 +49,7 @@ public class AuthenticationService {
 
             UserDTO convertedUser = userMapper.toDTO(user);
 
-            return new AuthenticationResponseDTO(convertedUser, token);
+            return new AuthResponseDTO(convertedUser, token);
 
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Entered user credentials are not valid");
@@ -57,7 +57,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public AuthenticationResponseDTO registerUser(RegisterDTO registerDTO) {
+    public AuthResponseDTO registerUser(RegisterDTO registerDTO) {
 
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
         Role userRole = roleService.findByAuthority("USER")

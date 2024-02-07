@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import entities.Note;
+import com.notehub.notehub.entities.Note;
 
 @Repository
 public interface NoteRepository extends JpaRepository<Note, UUID> {

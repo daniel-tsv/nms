@@ -50,9 +50,9 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register").permitAll()
                         .requestMatchers("/admin/**").hasRole(ADMIN)
-                        .requestMatchers("/user/**").hasAnyRole(ADMIN, USER)
+                        .requestMatchers("/profile/**", "/notes/**").hasAnyRole(USER, ADMIN)
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2rs -> oauth2rs
                         .jwt(jwt -> jwt

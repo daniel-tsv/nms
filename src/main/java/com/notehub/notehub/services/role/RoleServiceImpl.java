@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.notehub.notehub.entities.Role;
 import com.notehub.notehub.repositories.RoleRepository;
 
-import entities.Role;
 import lombok.RequiredArgsConstructor;
 
 @Service

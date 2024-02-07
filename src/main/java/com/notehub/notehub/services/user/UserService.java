@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
-import entities.User;
+import com.notehub.notehub.entities.User;
 
 public interface UserService {
 
