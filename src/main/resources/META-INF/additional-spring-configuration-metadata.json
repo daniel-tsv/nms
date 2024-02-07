@@ -1,9 +1,0 @@
-{
-  "properties": [
-    {
-      "name": "notehub.security.jwt.token-expiration-millis",
-      "type": "java.lang.Long",
-      "description": "Sets the JWT token expiration time in milliseconds."
-    }
-  ]
-}

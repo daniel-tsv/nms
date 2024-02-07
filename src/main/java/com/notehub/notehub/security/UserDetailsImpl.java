@@ -7,9 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.notehub.notehub.role.Role;
-import com.notehub.notehub.user.User;
-
+import entities.Role;
+import entities.User;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

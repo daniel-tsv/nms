@@ -6,10 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.notehub.notehub.role.Role;
-import com.notehub.notehub.role.RoleService;
-import com.notehub.notehub.user.User;
-import com.notehub.notehub.user.UserService;
+import com.notehub.notehub.services.role.RoleService;
+import com.notehub.notehub.services.user.UserService;
+
+import entities.Role;
+import entities.User;
 
 @SpringBootApplication
 public class NotehubApplication {
