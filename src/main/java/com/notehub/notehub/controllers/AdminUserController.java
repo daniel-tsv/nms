@@ -27,7 +27,7 @@ import com.notehub.notehub.exceptions.user.InvalidUserException;
 import com.notehub.notehub.exceptions.user.UserNotFoundException;
 import com.notehub.notehub.mappers.UserMapper;
 import com.notehub.notehub.services.user.UserService;
-import com.notehub.notehub.validators.UserValidator;
+import com.notehub.notehub.validators.UserDTOValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminUserController {
 
     private final UserService userService;
-    private final UserValidator userDTOValidator;
+    private final UserDTOValidator userDTOValidator;
     private final UserMapper userMapper;
 
     @GetMapping
@@ -65,7 +65,7 @@ public class AdminUserController {
                     "user is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        User createdUser = userService.createUser(userMapper.toEntity(userDTO));
+        User createdUser = userService.save(userMapper.toEntity(userDTO));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(createdUser.getUuid()).toUri();
 
@@ -83,14 +83,14 @@ public class AdminUserController {
                     "note is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
 
-        User updatedUser = userService.updateUser(id, userMapper.toEntity(userDTO));
+        User updatedUser = userService.updateById(id, userMapper.toEntity(userDTO));
 
         return ResponseEntity.ok(userMapper.toDTO(updatedUser));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable("id") UUID id) {
-        userService.deleteUser(id);
+        userService.delete(id);
         return ResponseEntity.ok("Successfully deleted user with id: {id}");
     }
 

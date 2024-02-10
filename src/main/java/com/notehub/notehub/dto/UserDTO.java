@@ -1,9 +1,10 @@
 package com.notehub.notehub.dto;
 
-import java.util.List;
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,12 +12,20 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserDTO {
+
+    @JsonIgnore
+    UUID uuid;
 
     String username;
 
     String email;
 
-    List<NoteDTO> notes;
+    int numberOfNotes;
+
+    public UserDTO(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.notehub.notehub.entities.Note;
+import com.notehub.notehub.entities.User;
 import com.notehub.notehub.repositories.NoteRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -56,4 +57,15 @@ public class NoteServiceImpl implements NoteService {
     public void deleteNote(UUID id) {
         noteRepository.deleteById(id);
     }
+
+    @Override
+    public int countUserNotes(User user) {
+        return noteRepository.countByUser(user);
+    }
+
+    // todo
+    // @Override
+    // public List<Note> listUserNotes(User user) {
+    //     return noteRepository.findByUser(user);
+    // }
 }

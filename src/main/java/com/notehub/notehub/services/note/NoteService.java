@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 
 import com.notehub.notehub.entities.Note;
+import com.notehub.notehub.entities.User;
 
 public interface NoteService {
     Optional<Note> findById(UUID id);
@@ -19,4 +20,9 @@ public interface NoteService {
     Note updateNote(UUID id, Note note);
 
     void deleteNote(UUID id);
+
+    int countUserNotes(User user);
+
+    //List<Note> listUserNotes(User user); // todo
+
 }

@@ -5,28 +5,28 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.notehub.notehub.entities.Note;
+import com.notehub.notehub.dto.NoteDTO;
 import com.notehub.notehub.services.note.NoteService;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class NoteValidator implements Validator {
+public class NoteDTOValidator implements Validator {
 
     private final NoteService noteService;
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
-        return Note.class.equals(clazz);
+        return NoteDTO.class.equals(clazz);
     }
 
     @Override
     public void validate(@NonNull Object target, @NonNull Errors errors) {
-        Note note = (Note) target;
+        NoteDTO noteDTO = (NoteDTO) target;
 
-        noteService.findByTitle(note.getTitle()).ifPresent(n -> {
-            if (!n.getUuid().equals(note.getUuid()))
+        noteService.findByTitle(noteDTO.getTitle()).ifPresent(n -> {
+            if (!n.getUuid().equals(noteDTO.getUuid()))
                 errors.rejectValue("title", "note.title.exists", "Note with this title already exists");
         });
     }

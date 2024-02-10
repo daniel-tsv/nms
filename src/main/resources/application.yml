@@ -4,8 +4,10 @@ spring.datasource:
   password: postgres
 
 spring.jpa:
-  hibernate.ddl-auto: create-drop
+  hibernate.ddl-auto: update
   show-sql: true
 
 notehub.security:
-  jwt.token-expiration-millis: 604800000 # 1 week
+  jwt:
+    token-expiration-millis: 604800000 # 1 week
+    token-secret: 11c023y2012nm19c071mycy0m80cm49809ib6v345v4

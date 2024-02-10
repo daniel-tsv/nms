@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
+import com.notehub.notehub.dto.UserDTO;
 import com.notehub.notehub.entities.User;
 
 public interface UserService {
@@ -17,9 +18,15 @@ public interface UserService {
 
     Page<User> listUsers(int page, int size, String direction, String sortBy);
 
-    User createUser(User user);
+    User save(User user);
 
-    User updateUser(UUID id, User updatedUser);
+    User updateById(UUID id, User updatedUser);
 
-    void deleteUser(UUID id);
+    User updateByUsername(String username, User updatedUser);
+
+    void delete(UUID id);
+
+    void deleteByUsername(String username);
+
+    User updateEntityFromDTO(UUID uuid, UserDTO userDTO);
 }

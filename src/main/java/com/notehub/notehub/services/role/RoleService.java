@@ -6,7 +6,7 @@ import com.notehub.notehub.entities.Role;
 
 public interface RoleService {
 
-    Optional<Role> findByAuthority(String authority);
+    Optional<Role> findByName(String authority);
 
     Role createRole(Role userRole);
 }

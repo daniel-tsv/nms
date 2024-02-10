@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.notehub.notehub.dto.AuthResponseDTO;
 import com.notehub.notehub.dto.LoginDTO;
 import com.notehub.notehub.dto.RegisterDTO;
-import com.notehub.notehub.services.AuthenticationService;
+import com.notehub.notehub.services.AuthService;
 import com.notehub.notehub.util.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationService authenticationService;
+    private final AuthService authenticationService;
 
     @PostMapping("/login")
     public AuthResponseDTO loginUser(@RequestBody LoginDTO loginDTO) {

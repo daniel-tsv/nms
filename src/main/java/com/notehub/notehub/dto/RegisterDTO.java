@@ -17,10 +17,10 @@ public class RegisterDTO {
     @Size(min = 2, max = 255, message = "Username length must be between 2 and 255 characters")
     String username;
 
+    @NotBlank(message = "Password cannot be empty")
+    String password;
+
     @NotBlank(message = "Email cannot be empty")
     @Email(message = "Email should be valid")
     String email;
-
-    @NotBlank(message = "Password cannot be empty")
-    String password;
 }
