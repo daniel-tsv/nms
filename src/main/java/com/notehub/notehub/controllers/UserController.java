@@ -33,13 +33,13 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final NoteService noteService;
-    private final AuthService authenticationService;
+    private final AuthService authService;
     private final UserDTOValidator userDTOValidator;
 
     @GetMapping
     public ResponseEntity<UserDTO> getUserProfile() {
 
-        User user = authenticationService.getAuthenticatedUser();
+        User user = authService.getAuthenticatedUser();
 
         UserDTO userDTO = userMapper.toDTO(user);
         userDTO.setNumberOfNotes(noteService.countUserNotes(user));
@@ -50,9 +50,9 @@ public class UserController {
     @PatchMapping
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserDTO updatedUserDTO, BindingResult br) {
 
-        User userMakingRequest = authenticationService.getAuthenticatedUser();
+        User userMakingRequest = authService.getAuthenticatedUser();
 
-        userDTOValidator.validate(userMapper.toDTO(userMakingRequest), br);
+        userDTOValidator.validate(updatedUserDTO, br);
         if (br.hasErrors())
             throw new InvalidUserException(
                     br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())

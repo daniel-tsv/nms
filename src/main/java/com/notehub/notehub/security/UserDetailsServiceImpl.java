@@ -1,10 +1,13 @@
 package com.notehub.notehub.security;
 
+import java.util.UUID;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.notehub.notehub.exceptions.UserIdNotFoundException;
 import com.notehub.notehub.services.user.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +21,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return new UserDetailsImpl(userService.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("The user with this username does not exist")));
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "The user with username '" + username + "' does not exist")));
     }
 
+    public UserDetails loadUserById(UUID uuid) throws UserIdNotFoundException {
+        return new UserDetailsImpl(userService.findById(uuid)
+                .orElseThrow(() -> new UserIdNotFoundException("The user with id '" + uuid + "' does not exist")));
+    }
 }

@@ -1,16 +1,17 @@
 package com.notehub.notehub.jwt;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.notehub.notehub.security.UserDetailsServiceImpl;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtProvider;
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,13 +40,12 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             DecodedJWT decodedJwt = jwtProvider.validateAndDecodeToken(authHeader.substring(7));
 
-            String username = jwtProvider.extractUsername(decodedJwt);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UUID uuid = UUID.fromString(jwtProvider.extractUserId(decodedJwt));
+            UserDetails userDetails = userDetailsServiceImpl.loadUserById(uuid);
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                     userDetails.getPassword(), userDetails.getAuthorities());
 
-            if (SecurityContextHolder.getContext().getAuthentication() == null)
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            SecurityContextHolder.getContext().setAuthentication(authToken);
 
         } catch (JWTVerificationException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token");
@@ -53,5 +53,4 @@ public class JWTFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }

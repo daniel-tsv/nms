@@ -41,19 +41,16 @@ public class AuthService {
     public AuthResponseDTO loginUser(LoginDTO loginDTO) {
 
         try {
-            Authentication auth = authenticationManager
-                    .authenticate(
-                            new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
 
             String token = jwtProvider.generateJWT(auth);
-
             User user = userService.findByUsername(loginDTO.getUsername())
                     .orElseThrow(() -> new UsernameNotFoundException(
                             "User for username '" + loginDTO.getUsername() + "' not found"));
+            UserDTO userDTO = userMapper.toDTO(user);
 
-            UserDTO convertedUser = userMapper.toDTO(user);
-
-            return new AuthResponseDTO(convertedUser, token);
+            return new AuthResponseDTO(userDTO, token);
 
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Entered user credentials are not valid");
@@ -69,9 +66,6 @@ public class AuthService {
 
         User user = new User(registerDTO.getUsername(), encodedPassword, registerDTO.getEmail());
         user.getRoles().add(userRole);
-
-        // TODO validate RegisterDTO before adding new user
-
         userService.save(user);
 
         return loginUser(new LoginDTO(registerDTO.getUsername(), registerDTO.getPassword()));
