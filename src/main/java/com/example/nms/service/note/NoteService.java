@@ -5,24 +5,24 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
+import com.example.nms.dto.NoteDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
 
 public interface NoteService {
     Optional<Note> findById(UUID id);
 
-    Optional<Note> findByTitle(String title);
+    Optional<Note> findByTitleAndUser(String title, User owner);
 
     Page<Note> listNotes(int page, int size, String direction, String sortBy);
 
-    Note createNote(Note note);
+    Note save(Note note);
 
-    Note updateNote(UUID id, Note note);
+    Note update(UUID noteId, Note note);
 
-    void deleteNote(UUID id);
+    void deleteByTitleAndOwner(String title, User owner);
 
     int countUserNotes(User user);
 
-    //List<Note> listUserNotes(User user); // todo
-
+    Note updateEntityFromDTO(UUID noteUuid, NoteDTO noteDTO);
 }

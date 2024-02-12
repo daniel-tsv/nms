@@ -6,6 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.example.nms.dto.NoteDTO;
+import com.example.nms.service.auth.AuthService;
 import com.example.nms.service.note.NoteService;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class NoteDTOValidator implements Validator {
 
     private final NoteService noteService;
+    private final AuthService authService;
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
@@ -23,12 +25,15 @@ public class NoteDTOValidator implements Validator {
 
     @Override
     public void validate(@NonNull Object target, @NonNull Errors errors) {
+
         NoteDTO noteDTO = (NoteDTO) target;
 
-        noteService.findByTitle(noteDTO.getTitle()).ifPresent(n -> {
-            if (!n.getUuid().equals(noteDTO.getUuid()))
-                errors.rejectValue("title", "note.title.exists", "Note with this title already exists");
+        // TODO test
+        noteService.findByTitleAndUser(noteDTO.getTitle(), authService.getAuthenticatedUser()).ifPresent(n -> {
+            if (noteDTO.getUuid() == null || !n.getUuid().equals(noteDTO.getUuid()))
+                errors.rejectValue("title", "note.title.exists",
+                        "Note with title '" + noteDTO.getTitle() + "' already exists");
         });
-    }
 
+    }
 }

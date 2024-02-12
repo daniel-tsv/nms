@@ -41,7 +41,7 @@ public class Note {
 
     @NotBlank
     @Size(min = 1, max = 255)
-    @Column(unique = true, nullable = false, length = 255)
+    @Column(nullable = false, length = 255)
     String title;
 
     @Lob
@@ -62,5 +62,6 @@ public class Note {
     public Note(String title, User user) {
         this.title = title;
         this.user = user;
+        this.contents = "";
     }
 }

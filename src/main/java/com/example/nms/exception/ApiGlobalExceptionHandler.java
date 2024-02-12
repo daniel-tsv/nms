@@ -1,7 +1,5 @@
 package com.example.nms.exception;
 
-import java.time.Instant;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -9,42 +7,43 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.example.nms.dto.ErrorResponseDTO;
+import com.example.nms.exception.note.InvalidNoteException;
+import com.example.nms.exception.note.NoteNotFoundException;
 import com.example.nms.exception.user.InvalidUserException;
 import com.example.nms.exception.user.UserIdNotFoundException;
-import com.example.nms.util.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
+@ResponseBody
 public class ApiGlobalExceptionHandler {
 
-    @ExceptionHandler({ UsernameNotFoundException.class, UserIdNotFoundException.class })
+    @ExceptionHandler({ UsernameNotFoundException.class, UserIdNotFoundException.class, NoteNotFoundException.class })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundExceptions(Exception ex, HttpServletRequest request) {
-        return createErrorResponse("Not found", ex, request, HttpStatus.NOT_FOUND);
+    public ErrorResponseDTO handleNotFoundExceptions(Exception ex, HttpServletRequest request) {
+        return ErrorResponseDTO.create("Not found", ex, request, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({ BadCredentialsException.class, InvalidUserException.class })
+    @ExceptionHandler({ BadCredentialsException.class, InvalidUserException.class, InvalidNoteException.class })
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse badCredentialsHandler(BadCredentialsException ex, HttpServletRequest request) {
-        return createErrorResponse("Invalid data", ex, request, HttpStatus.BAD_REQUEST);
+    public ErrorResponseDTO badCredentialsHandler(BadCredentialsException ex, HttpServletRequest request) {
+        return ErrorResponseDTO.create("Invalid data", ex, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({ LockedException.class, DisabledException.class })
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse lockedHandler(LockedException ex, HttpServletRequest request) {
-        return createErrorResponse("Locked/Disabled user account", ex, request, HttpStatus.FORBIDDEN);
+    public ErrorResponseDTO lockedHandler(LockedException ex, HttpServletRequest request) {
+        return ErrorResponseDTO.create("Locked/Disabled user account", ex, request, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
-    public ErrorResponse handleAllUncaughtException(Exception ex, HttpServletRequest request) {
-        return createErrorResponse("Unexpected error", ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ErrorResponseDTO handleAllUncaughtException(Exception ex, HttpServletRequest request) {
+        return ErrorResponseDTO.create("Unexpected error", ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private ErrorResponse createErrorResponse(String error, Exception ex, HttpServletRequest request,
-            HttpStatus status) {
-        return new ErrorResponse(error, ex.getMessage(), request.getRequestURI(), status, Instant.now());
-    }
 }

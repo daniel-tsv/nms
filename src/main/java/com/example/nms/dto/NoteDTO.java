@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@EqualsAndHashCode(of = "uuid")
+@EqualsAndHashCode(of = { "uuid", "title" })
 public class NoteDTO {
 
     @JsonIgnore
@@ -26,7 +26,9 @@ public class NoteDTO {
     @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")
     String title;
 
+    @JsonIgnore
     Instant createdAt;
 
+    @JsonIgnore
     Instant updatedAt;
 }

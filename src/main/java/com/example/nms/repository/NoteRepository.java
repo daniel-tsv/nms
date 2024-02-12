@@ -12,9 +12,12 @@ import com.example.nms.entity.User;
 
 @Repository
 public interface NoteRepository extends JpaRepository<Note, UUID> {
-    Optional<Note> findByTitle(String title);
+
+    Optional<Note> findByTitleAndUser(String title, User user);
 
     List<Note> findByUser(User user);
 
     int countByUser(User user);
+
+    void deleteByTitleAndUser(String title, User user);
 }
