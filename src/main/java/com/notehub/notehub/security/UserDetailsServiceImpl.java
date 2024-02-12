@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.notehub.notehub.exceptions.UserIdNotFoundException;
-import com.notehub.notehub.services.user.UserService;
+import com.notehub.notehub.exception.user.UserIdNotFoundException;
+import com.notehub.notehub.service.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
