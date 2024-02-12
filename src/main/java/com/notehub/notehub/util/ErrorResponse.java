@@ -10,9 +10,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ErrorResponse {
-    private Instant timestamp;
-    private HttpStatus status;
     private String error;
     private String message;
     private String path;
+    private HttpStatus status;
+    private Instant timestamp;
 }

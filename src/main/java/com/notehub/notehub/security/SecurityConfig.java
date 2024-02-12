@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.notehub.notehub.jwt.JWTFilter;
+import com.notehub.notehub.security.jwt.JWTFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +38,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/error").permitAll()
                         .requestMatchers("/admin/**").hasRole(ADMIN)
                         .requestMatchers("/user", "/notes").hasAnyRole(USER, ADMIN)
                         .anyRequest().authenticated())

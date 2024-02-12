@@ -6,6 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.notehub.notehub.dto.UserDTO;
+import com.notehub.notehub.services.AuthService;
 import com.notehub.notehub.services.user.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class UserDTOValidator implements Validator {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
@@ -23,16 +25,19 @@ public class UserDTOValidator implements Validator {
 
     @Override
     public void validate(@NonNull Object target, @NonNull Errors errors) {
+
         UserDTO userDTO = (UserDTO) target;
+        userDTO.setUuid(authService.getAuthenticatedUser().getUuid());
 
         userService.findByUsername(userDTO.getUsername()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
-                errors.rejectValue("username", "user.username.exists", "This username has already been taken");
+                errors.rejectValue("username", "user.username.exists",
+                        "Username '" + u.getUsername() + "' has already been taken");
         });
 
         userService.findByEmail(userDTO.getEmail()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
-                errors.rejectValue("email", "user.email.exists", "This email has already been taken");
+                errors.rejectValue("email", "user.email.exists", "Email '" + u.getEmail() + "' has already been taken");
         });
     }
 }

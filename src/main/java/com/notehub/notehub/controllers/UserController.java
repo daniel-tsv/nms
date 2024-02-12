@@ -50,14 +50,13 @@ public class UserController {
     @PatchMapping
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserDTO updatedUserDTO, BindingResult br) {
 
-        User userMakingRequest = authService.getAuthenticatedUser();
-
         userDTOValidator.validate(updatedUserDTO, br);
         if (br.hasErrors())
             throw new InvalidUserException(
                     br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
                             .collect(Collectors.joining("; ")));
 
+        User userMakingRequest = authService.getAuthenticatedUser();
         User updatedUser = userService.updateEntityFromDTO(userMakingRequest.getUuid(), updatedUserDTO);
 
         return ResponseEntity.ok(userMapper.toDTO(updatedUser));

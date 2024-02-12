@@ -1,4 +1,4 @@
-package com.notehub.notehub.jwt;
+package com.notehub.notehub.security.jwt;
 
 import java.time.Instant;
 
@@ -54,13 +54,14 @@ public class JWTUtil {
         JWTVerifier verifier = JWT
                 .require(Algorithm.HMAC256(secret))
                 .withSubject("user-details")
+                .withClaimPresence(USER_UUID)
                 .withIssuer("self")
                 .build();
 
         DecodedJWT jwt = verifier.verify(token);
 
         Claim userUuidClaim = jwt.getClaim(USER_UUID);
-        if (userUuidClaim == null || !userUuidClaim.asString().isEmpty())
+        if (userUuidClaim == null || userUuidClaim.asString().isEmpty())
             throw new JWTVerificationException("Missing or empty USER_UUID in JWT Token");
 
         return jwt;

@@ -1,4 +1,4 @@
-package com.notehub.notehub.jwt;
+package com.notehub.notehub.security.jwt;
 
 import java.io.IOException;
 import java.util.UUID;

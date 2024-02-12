@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.notehub.notehub.dto.UserDTO;
 import com.notehub.notehub.entities.User;
-import com.notehub.notehub.exceptions.user.UserNotFoundException;
+import com.notehub.notehub.exceptions.UserIdNotFoundException;
 import com.notehub.notehub.mappers.UserMapper;
 import com.notehub.notehub.repositories.UserRepository;
 
@@ -81,24 +81,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateEntityFromDTO(UUID uuid, UserDTO userDTO) {
+    public User updateEntityFromDTO(UUID uuid, UserDTO updatedUserDTO) {
 
         User existingUser = findById(uuid)
-                .orElseThrow(() -> new UserNotFoundException("Unable to update - user id was not found"));
+                .orElseThrow(
+                        () -> new UserIdNotFoundException("Unable to update user - id '" + uuid + "' was not found"));
+        User updatedUser = userMapper.toEntity(updatedUserDTO);
 
-        User user = userMapper.toEntity(userDTO);
+        updatedUser.setUuid(existingUser.getUuid());
+        updatedUser.setNotes(existingUser.getNotes());
+        updatedUser.setPassword(existingUser.getPassword());
+        updatedUser.setRoles(existingUser.getRoles());
 
-        user.setUuid(existingUser.getUuid());
-        user.setNotes(existingUser.getNotes());
-        user.setPassword(existingUser.getPassword());
-        user.setRoles(existingUser.getRoles());
+        updatedUser.setAccountNonExpired(existingUser.isAccountNonExpired());
+        updatedUser.setAccountNonLocked(existingUser.isAccountNonLocked());
+        updatedUser.setCredentialsNonExpired(existingUser.isCredentialsNonExpired());
+        updatedUser.setCreatedAt(existingUser.getCreatedAt());
+        updatedUser.setEnabled(existingUser.isEnabled());
 
-        user.setAccountNonExpired(existingUser.isAccountNonExpired());
-        user.setAccountNonLocked(existingUser.isAccountNonLocked());
-        user.setCredentialsNonExpired(existingUser.isCredentialsNonExpired());
-        user.setCreatedAt(existingUser.getCreatedAt());
-        user.setEnabled(existingUser.isEnabled());
-
-        return userRepository.save(user);
+        return userRepository.save(updatedUser);
     }
 }

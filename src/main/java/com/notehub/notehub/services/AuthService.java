@@ -2,9 +2,10 @@ package com.notehub.notehub.services;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,9 +19,9 @@ import com.notehub.notehub.dto.UserDTO;
 import com.notehub.notehub.entities.Role;
 import com.notehub.notehub.entities.User;
 import com.notehub.notehub.exceptions.role.RoleNotFoundException;
-import com.notehub.notehub.jwt.JWTUtil;
 import com.notehub.notehub.mappers.UserMapper;
 import com.notehub.notehub.security.UserDetailsImpl;
+import com.notehub.notehub.security.jwt.JWTUtil;
 import com.notehub.notehub.services.role.RoleService;
 import com.notehub.notehub.services.user.UserService;
 
@@ -52,8 +53,12 @@ public class AuthService {
 
             return new AuthResponseDTO(userDTO, token);
 
-        } catch (AuthenticationException e) {
+        } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Entered user credentials are not valid");
+        } catch (LockedException e) {
+            throw new LockedException("Your account has been locked");
+        } catch (DisabledException e) {
+            throw new DisabledException("Your account has been disabled");
         }
     }
 
