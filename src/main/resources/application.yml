@@ -1,5 +1,5 @@
 spring.datasource:
-  url: jdbc:postgresql://localhost:5432/notehub
+  url: jdbc:postgresql://localhost:5432/nms
   username: postgres
   password: postgres
 
@@ -7,7 +7,7 @@ spring.jpa:
   hibernate.ddl-auto: update
   show-sql: true
 
-notehub.security:
+nms.security:
   jwt:
     token-expiration-millis: 604800000 # 1 week
     token-secret: 11c023y2012nm19c071mycy0m80cm49809ib6v345v4
