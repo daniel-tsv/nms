@@ -26,9 +26,7 @@ public class NoteDTO {
     @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")
     String title;
 
-    @JsonIgnore
     Instant createdAt;
 
-    @JsonIgnore
     Instant updatedAt;
 }

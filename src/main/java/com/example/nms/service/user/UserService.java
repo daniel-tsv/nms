@@ -24,9 +24,10 @@ public interface UserService {
 
     User updateByUsername(String username, User updatedUser);
 
-    void delete(UUID id);
+    boolean delete(UUID id);
 
-    void deleteByUsername(String username);
+    boolean deleteByUsername(String username);
 
-    User updateEntityFromDTO(UUID uuid, UserDTO userDTO);
+    User updateEntityFromDTO(User existingUser, UserDTO updatedUserDTO);
+
 }

@@ -1,5 +1,6 @@
 package com.example.nms.service.user;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.User;
-import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.repository.UserRepository;
 
@@ -42,8 +42,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> listUsers(int page, int size, String direction, String sortBy) {
-        Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+
+        page = Math.max(page, 0);
+        size = Math.max(size, 1);
+        sortBy = Arrays.asList("uuid", "username", "email", "createdAt").contains(sortBy) ? sortBy : "updatedAt";
+        Sort.Direction sortDirection = Sort.Direction.ASC.name().equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+        Sort sort = Sort.by(sortDirection, sortBy);
+
         return userRepository.findAll(PageRequest.of(page, size, sort));
     }
 
@@ -62,14 +69,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void delete(UUID id) {
+    public boolean delete(UUID id) {
+
+        if (!userRepository.existsById(id))
+            return false;
+
         userRepository.deleteById(id);
+        return true;
     }
 
     @Override
     @Transactional
-    public void deleteByUsername(String username) {
-        userRepository.deleteByUsernameIgnoreCase(username);
+    public boolean deleteByUsername(String username) {
+        if (userRepository.existsByUsernameIgnoreCase(username)) {
+            userRepository.deleteByUsernameIgnoreCase(username);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -81,11 +97,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateEntityFromDTO(UUID uuid, UserDTO updatedUserDTO) {
+    public User updateEntityFromDTO(User existingUser, UserDTO updatedUserDTO) {
 
-        User existingUser = findById(uuid)
-                .orElseThrow(
-                        () -> new UserIdNotFoundException("Unable to update user - id '" + uuid + "' was not found"));
         User updatedUser = userMapper.toEntity(updatedUserDTO);
 
         updatedUser.setUuid(existingUser.getUuid());

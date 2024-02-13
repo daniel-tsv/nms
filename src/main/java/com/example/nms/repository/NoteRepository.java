@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +22,8 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
     int countByUser(User user);
 
     void deleteByTitleAndUser(String title, User user);
+
+    Page<Note> findAllByUser(PageRequest pageRequest, User user);
+
+    boolean existsByTitleAndUser(String title, User user);
 }

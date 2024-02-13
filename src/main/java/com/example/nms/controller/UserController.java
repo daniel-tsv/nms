@@ -2,6 +2,7 @@ package com.example.nms.controller;
 
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,16 +55,17 @@ public class UserController {
                     br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
                             .collect(Collectors.joining("; ")));
 
-        User userMakingRequest = authService.getAuthenticatedUser();
-        User updatedUser = userService.updateEntityFromDTO(userMakingRequest.getUuid(), updatedUserDTO);
+        User updatedUser = userService.updateEntityFromDTO(authService.getAuthenticatedUser(), updatedUserDTO);
+        UserDTO userDTO = userMapper.toDTO(updatedUser);
+        userDTO.setNumberOfNotes(noteService.countUserNotes(updatedUser));
 
-        return ResponseEntity.ok(userMapper.toDTO(updatedUser));
+        return ResponseEntity.ok(userDTO);
     }
 
     @DeleteMapping
     public ResponseEntity<String> deleteUser() {
-        User user = authService.getAuthenticatedUser();
-        userService.delete(user.getUuid());
-        return ResponseEntity.ok("Your account has been successfully deleted");
+        return userService.delete(authService.getAuthenticatedUser().getUuid())
+                ? ResponseEntity.ok("Your account has been successfully deleted")
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Failed to delete account - user does not exist");
     }
 }

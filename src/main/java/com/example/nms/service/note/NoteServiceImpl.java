@@ -1,6 +1,6 @@
 package com.example.nms.service.note;
 
-import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.nms.dto.NoteDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
-import com.example.nms.exception.note.NoteNotFoundException;
 import com.example.nms.mapper.NoteMapper;
 import com.example.nms.repository.NoteRepository;
 
@@ -38,10 +37,17 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Page<Note> listNotes(int page, int size, String direction, String sortBy) {
-        Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-        return noteRepository.findAll(PageRequest.of(page, size, sort));
+    public Page<Note> listNotesByUser(int page, int size, String direction, String sortBy, User owner) {
+
+        page = Math.max(page, 0);
+        size = Math.max(size, 1);
+        sortBy = Arrays.asList("title", "createdAt", "updatedAt").contains(sortBy) ? sortBy : "updatedAt";
+        Sort.Direction sortDirection = Sort.Direction.ASC.name().equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+        Sort sort = Sort.by(sortDirection, sortBy);
+
+        return noteRepository.findAllByUser(PageRequest.of(page, size, sort), owner);
     }
 
     @Override
@@ -59,8 +65,12 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     @Transactional
-    public void deleteByTitleAndOwner(String title, User owner) {
-        noteRepository.deleteByTitleAndUser(title, owner);
+    public boolean deleteByTitleAndOwner(String title, User owner) {
+        if (noteRepository.existsByTitleAndUser(title, owner)) {
+            noteRepository.deleteByTitleAndUser(title, owner);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -70,28 +80,15 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     @Transactional
-    public Note updateEntityFromDTO(UUID noteUuid, NoteDTO updatedNoteDTO) {
+    public Note updateEntityFromDTO(Note existingNote, NoteDTO updatedNoteDTO) {
 
-        Note existingNote = findById(noteUuid)
-                .orElseThrow(
-                        () -> new NoteNotFoundException("Unable to update note - id '" + noteUuid + "' was not found"));
         Note updatedNote = noteMapper.toEntity(updatedNoteDTO);
-
-        // todo remove
-        System.out.println("updatedNote title:" + updatedNote.getTitle());
 
         updatedNote.setContents(existingNote.getContents());
         updatedNote.setCreatedAt(existingNote.getCreatedAt());
-        updatedNote.setUpdatedAt(Instant.now());
         updatedNote.setUser(existingNote.getUser());
         updatedNote.setUuid(existingNote.getUuid());
 
         return noteRepository.save(updatedNote);
     }
-
-    // todo
-    // @Override
-    // public List<Note> listUserNotes(User user) {
-    //     return noteRepository.findByUser(user);
-    // }
 }

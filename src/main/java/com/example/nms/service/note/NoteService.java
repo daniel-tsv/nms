@@ -14,15 +14,15 @@ public interface NoteService {
 
     Optional<Note> findByTitleAndUser(String title, User owner);
 
-    Page<Note> listNotes(int page, int size, String direction, String sortBy);
+    Page<Note> listNotesByUser(int page, int size, String direction, String sortBy, User owner);
 
     Note save(Note note);
 
     Note update(UUID noteId, Note note);
 
-    void deleteByTitleAndOwner(String title, User owner);
+    boolean deleteByTitleAndOwner(String title, User owner);
 
     int countUserNotes(User user);
 
-    Note updateEntityFromDTO(UUID noteUuid, NoteDTO noteDTO);
+    Note updateEntityFromDTO(Note existingNote, NoteDTO updatedNoteDTO);
 }
