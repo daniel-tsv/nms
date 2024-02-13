@@ -33,79 +33,79 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NoteController {
 
-    private final NoteService noteService;
-    private final NoteMapper noteMapper;
-    private final AuthService authService;
-    private final NoteDTOValidator noteDTOValidator;
+	private final NoteService noteService;
+	private final NoteMapper noteMapper;
+	private final AuthService authService;
+	private final NoteDTOValidator noteDTOValidator;
 
-    private static final String NOTE_WAS_NOT_FOUND = "The note %s was not found";
+	private static final String NOTE_WAS_NOT_FOUND = "The note %s was not found";
 
-    @GetMapping("/{title}")
-    public ResponseEntity<NoteDTO> findByTitle(@PathVariable("title") String title) {
-        return ResponseEntity.ok(
-                noteMapper.toDTO(
-                        noteService.findByTitleAndUser(title, authService.getAuthenticatedUser())
-                                .orElseThrow(
-                                        () -> new NoteNotFoundException(String.format(NOTE_WAS_NOT_FOUND, title)))));
-    }
+	@GetMapping("/{title}")
+	public ResponseEntity<NoteDTO> findByTitle(@PathVariable("title") String title) {
+		return ResponseEntity.ok(
+				noteMapper.toDTO(
+						noteService.findByTitleAndUser(title, authService.getAuthenticatedUser())
+								.orElseThrow(
+										() -> new NoteNotFoundException(String.format(NOTE_WAS_NOT_FOUND, title)))));
+	}
 
-    @GetMapping
-    public ResponseEntity<List<NoteDTO>> findAll(
-            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "20") int size,
-            @RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
-            @RequestParam(name = "sort", required = false, defaultValue = "updatedAt") String sortBy) {
+	@GetMapping
+	public ResponseEntity<List<NoteDTO>> findAll(
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
+			@RequestParam(name = "size", required = false, defaultValue = "20") int size,
+			@RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
+			@RequestParam(name = "sort", required = false, defaultValue = "updatedAt") String sortBy) {
 
-        return ResponseEntity.ok(
-                noteMapper.toDTO(
-                        noteService.listNotesByUser(page, size, direction, sortBy, authService.getAuthenticatedUser())
-                                .toList()));
-    }
+		return ResponseEntity.ok(
+				noteMapper.toDTO(
+						noteService.findNotesByUser(page, size, direction, sortBy, authService.getAuthenticatedUser())
+								.toList()));
+	}
 
-    @PostMapping
-    public ResponseEntity<Object> createNote(@RequestBody @Valid NoteDTO noteDTO, BindingResult br) {
+	@PostMapping
+	public ResponseEntity<Object> createNote(@RequestBody @Valid NoteDTO noteDTO, BindingResult br) {
 
-        noteDTOValidator.validate(noteDTO, br);
-        if (br.hasFieldErrors())
-            throw new InvalidNoteException(
-                    br.getFieldErrors().stream()
-                            .map(err -> err.getField() + " - " + err.getDefaultMessage())
-                            .collect(Collectors.toList())
-                            .toString());
+		noteDTOValidator.validate(noteDTO, br);
+		if (br.hasFieldErrors())
+			throw new InvalidNoteException(
+					br.getFieldErrors().stream()
+							.map(err -> err.getField() + " - " + err.getDefaultMessage())
+							.collect(Collectors.toList())
+							.toString());
 
-        return ResponseEntity.ok(
-                noteMapper.toDTO(
-                        noteService.save(
-                                new Note(noteDTO.getTitle(), authService.getAuthenticatedUser()))));
-    }
+		return ResponseEntity.ok(
+				noteMapper.toDTO(
+						noteService.save(
+								new Note(noteDTO.getTitle(), authService.getAuthenticatedUser()))));
+	}
 
-    @PatchMapping("/{title}")
-    public ResponseEntity<Object> updateNote(@PathVariable("title") String title,
-            @RequestBody @Valid NoteDTO noteDTO, BindingResult br) {
+	@PatchMapping("/{title}")
+	public ResponseEntity<Object> updateNote(@PathVariable("title") String title,
+			@RequestBody @Valid NoteDTO noteDTO, BindingResult br) {
 
-        Note existingNote = noteService.findByTitleAndUser(title, authService.getAuthenticatedUser())
-                .orElseThrow(() -> new NoteNotFoundException(
-                        String.format(NOTE_WAS_NOT_FOUND, title)));
+		Note existingNote = noteService.findByTitleAndUser(title, authService.getAuthenticatedUser())
+				.orElseThrow(() -> new NoteNotFoundException(
+						String.format(NOTE_WAS_NOT_FOUND, title)));
 
-        noteDTO.setUuid(existingNote.getUuid());
-        noteDTOValidator.validate(noteDTO, br);
+		noteDTO.setUuid(existingNote.getUuid());
+		noteDTOValidator.validate(noteDTO, br);
 
-        if (br.hasFieldErrors())
-            throw new InvalidNoteException(
-                    br.getFieldErrors().stream()
-                            .map(err -> err.getField() + " - " + err.getDefaultMessage())
-                            .collect(Collectors.toList())
-                            .toString());
+		if (br.hasFieldErrors())
+			throw new InvalidNoteException(
+					br.getFieldErrors().stream()
+							.map(err -> err.getField() + " - " + err.getDefaultMessage())
+							.collect(Collectors.toList())
+							.toString());
 
-        return ResponseEntity.ok(
-                noteMapper.toDTO(
-                        noteService.updateEntityFromDTO(existingNote, noteDTO)));
-    }
+		return ResponseEntity.ok(
+				noteMapper.toDTO(
+						noteService.updateFromDTO(existingNote, noteDTO)));
+	}
 
-    @DeleteMapping("/{title}")
-    public ResponseEntity<String> deleteNote(@PathVariable("title") String title) {
-        return noteService.deleteByTitleAndOwner(title, authService.getAuthenticatedUser())
-                ? ResponseEntity.ok(String.format("The note %s was successfully deleted", title))
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(String.format(NOTE_WAS_NOT_FOUND, title));
-    }
+	@DeleteMapping("/{title}")
+	public ResponseEntity<String> deleteNote(@PathVariable("title") String title) {
+		return noteService.deleteByTitleAndOwner(title, authService.getAuthenticatedUser())
+				? ResponseEntity.ok(String.format("The note %s was successfully deleted", title))
+				: ResponseEntity.status(HttpStatus.NOT_FOUND).body(String.format(NOTE_WAS_NOT_FOUND, title));
+	}
 }

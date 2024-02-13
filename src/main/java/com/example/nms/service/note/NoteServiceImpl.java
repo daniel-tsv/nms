@@ -37,7 +37,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Page<Note> listNotesByUser(int page, int size, String direction, String sortBy, User owner) {
+    public Page<Note> findNotesByUser(int page, int size, String direction, String sortBy, User owner) {
 
         page = Math.max(page, 0);
         size = Math.max(size, 1);
@@ -58,9 +58,16 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     @Transactional
-    public Note update(UUID noteId, Note updatedNote) {
-        updatedNote.setUuid(noteId);
-        return noteRepository.save(updatedNote);
+    public Note updateFromDTO(Note existingNote, NoteDTO updatedNoteDTO) {
+
+        Note mappedNote = noteMapper.toEntity(updatedNoteDTO);
+
+        mappedNote.setContents(existingNote.getContents());
+        mappedNote.setCreatedAt(existingNote.getCreatedAt());
+        mappedNote.setUser(existingNote.getUser());
+        mappedNote.setUuid(existingNote.getUuid());
+
+        return noteRepository.save(mappedNote);
     }
 
     @Override
@@ -78,17 +85,4 @@ public class NoteServiceImpl implements NoteService {
         return noteRepository.countByUser(user);
     }
 
-    @Override
-    @Transactional
-    public Note updateEntityFromDTO(Note existingNote, NoteDTO updatedNoteDTO) {
-
-        Note updatedNote = noteMapper.toEntity(updatedNoteDTO);
-
-        updatedNote.setContents(existingNote.getContents());
-        updatedNote.setCreatedAt(existingNote.getCreatedAt());
-        updatedNote.setUser(existingNote.getUser());
-        updatedNote.setUuid(existingNote.getUuid());
-
-        return noteRepository.save(updatedNote);
-    }
 }
