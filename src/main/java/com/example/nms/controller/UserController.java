@@ -2,7 +2,6 @@ package com.example.nms.controller;
 
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.User;
 import com.example.nms.exception.user.InvalidUserException;
+import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.service.auth.AuthService;
 import com.example.nms.service.note.NoteService;
@@ -37,7 +37,6 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserDTO> getUserProfile() {
-
         User user = authService.getAuthenticatedUser();
 
         UserDTO userDTO = userMapper.toDTO(user);
@@ -48,7 +47,6 @@ public class UserController {
 
     @PatchMapping
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserDTO updatedUserDTO, BindingResult br) {
-
         userDTOValidator.validate(updatedUserDTO, br);
         if (br.hasErrors())
             throw new InvalidUserException(
@@ -64,8 +62,8 @@ public class UserController {
 
     @DeleteMapping
     public ResponseEntity<String> deleteUser() {
-        return userService.delete(authService.getAuthenticatedUser().getUuid())
-                ? ResponseEntity.ok("Your account has been successfully deleted")
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Failed to delete account - user does not exist");
+        if (userService.delete(authService.getAuthenticatedUser().getUuid()))
+            ResponseEntity.ok("User account was successfully deleted");
+        throw new UserIdNotFoundException("Failed to delete account - user was not found");
     }
 }

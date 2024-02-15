@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.service.auth.AuthService;
 import com.example.nms.service.user.UserService;
@@ -20,14 +21,21 @@ public class UserDTOValidator implements Validator {
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
-        return UserDTO.class.equals(clazz);
+        return UserDTO.class.equals(clazz) || RegisterDTO.class.equals(clazz);
     }
 
     @Override
     public void validate(@NonNull Object target, @NonNull Errors errors) {
 
-        UserDTO userDTO = (UserDTO) target;
-        userDTO.setUuid(authService.getAuthenticatedUser().getUuid());
+        UserDTO userDTO;
+
+        if (target instanceof RegisterDTO) {
+            RegisterDTO regDTO = (RegisterDTO) target;
+            userDTO = new UserDTO(regDTO.getUsername(), regDTO.getEmail());
+        } else {
+            userDTO = (UserDTO) target;
+            userDTO.setUuid(authService.getAuthenticatedUser().getUuid());
+        }
 
         userService.findByUsername(userDTO.getUsername()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
@@ -39,5 +47,6 @@ public class UserDTOValidator implements Validator {
             if (!u.getUuid().equals(userDTO.getUuid()))
                 errors.rejectValue("email", "user.email.exists", "Email '" + u.getEmail() + "' has already been taken");
         });
+
     }
 }

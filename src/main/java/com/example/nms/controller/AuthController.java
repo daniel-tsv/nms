@@ -13,6 +13,7 @@ import com.example.nms.dto.AuthResponseDTO;
 import com.example.nms.dto.LoginDTO;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.service.auth.AuthService;
+import com.example.nms.validator.UserDTOValidator;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserDTOValidator userDTOValidator;
 
     @PostMapping("/login")
     public AuthResponseDTO loginUser(@RequestBody @Valid LoginDTO loginDTO, BindingResult br) {
@@ -38,6 +40,7 @@ public class AuthController {
     @PostMapping("/register")
     public AuthResponseDTO registerUser(@RequestBody @Valid RegisterDTO registerDTO, BindingResult br) {
 
+        userDTOValidator.validate(registerDTO, br);
         if (br.hasErrors())
             throw new BadCredentialsException(
                     br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())

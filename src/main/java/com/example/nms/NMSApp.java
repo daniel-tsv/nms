@@ -25,6 +25,9 @@ public class NMSApp {
 			if (userService.findByUsername("admin").isPresent())
 				return;
 
+			Role userRole = new Role("ROLE_USER");
+			roleService.createRole(userRole);
+
 			Role adminRole = new Role("ROLE_ADMIN");
 			User admin = new User("admin", passwordEncoder.encode("admin"), "admin@admin.com");
 			admin.getRoles().add(adminRole);

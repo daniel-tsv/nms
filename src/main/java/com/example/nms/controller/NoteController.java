@@ -3,7 +3,6 @@ package com.example.nms.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -89,7 +88,6 @@ public class NoteController {
 
 		noteDTO.setUuid(existingNote.getUuid());
 		noteDTOValidator.validate(noteDTO, br);
-
 		if (br.hasFieldErrors())
 			throw new InvalidNoteException(
 					br.getFieldErrors().stream()
@@ -104,8 +102,8 @@ public class NoteController {
 
 	@DeleteMapping("/{title}")
 	public ResponseEntity<String> deleteNote(@PathVariable("title") String title) {
-		return noteService.deleteByTitleAndOwner(title, authService.getAuthenticatedUser())
-				? ResponseEntity.ok(String.format("The note %s was successfully deleted", title))
-				: ResponseEntity.status(HttpStatus.NOT_FOUND).body(String.format(NOTE_WAS_NOT_FOUND, title));
+		if (noteService.deleteByTitleAndOwner(title, authService.getAuthenticatedUser()))
+			ResponseEntity.ok(String.format("The note %s was successfully deleted", title));
+		throw new NoteNotFoundException(String.format(NOTE_WAS_NOT_FOUND, title));
 	}
 }

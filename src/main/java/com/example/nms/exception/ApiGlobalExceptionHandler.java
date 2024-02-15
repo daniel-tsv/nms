@@ -24,20 +24,19 @@ public class ApiGlobalExceptionHandler {
 
     @ExceptionHandler({ UsernameNotFoundException.class, UserIdNotFoundException.class, NoteNotFoundException.class })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponseDTO handleNotFoundExceptions(Exception ex, HttpServletRequest request) {
+    public ErrorResponseDTO notFoundHandler(Exception ex, HttpServletRequest request) {
         return ErrorResponseDTO.create("Not found", ex, request, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({ BadCredentialsException.class, InvalidUserException.class, InvalidNoteException.class })
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponseDTO badCredentialsHandler(BadCredentialsException ex, HttpServletRequest request) {
+    public ErrorResponseDTO badRequestHandler(Exception ex, HttpServletRequest request) {
         return ErrorResponseDTO.create("Invalid data", ex, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({ LockedException.class, DisabledException.class })
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponseDTO lockedHandler(LockedException ex, HttpServletRequest request) {
+    public ErrorResponseDTO forbiddenHandler(Exception ex, HttpServletRequest request) {
         return ErrorResponseDTO.create("Locked/Disabled user account", ex, request, HttpStatus.FORBIDDEN);
     }
 

@@ -29,7 +29,7 @@ public class NoteDTOValidator implements Validator {
         NoteDTO noteDTO = (NoteDTO) target;
 
         noteService.findByTitleAndUser(noteDTO.getTitle(), authService.getAuthenticatedUser()).ifPresent(n -> {
-            if (noteDTO.getUuid() == null || !n.getUuid().equals(noteDTO.getUuid()))
+            if (!n.getUuid().equals(noteDTO.getUuid()))
                 errors.rejectValue("title", "note.title.exists",
                         "Note with title '" + noteDTO.getTitle() + "' already exists");
         });
