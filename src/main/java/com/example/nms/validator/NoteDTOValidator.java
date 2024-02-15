@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.example.nms.dto.NoteDTO;
+import com.example.nms.constants.MessageConstants;
+import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.service.auth.AuthService;
 import com.example.nms.service.note.NoteService;
 
@@ -20,18 +21,18 @@ public class NoteDTOValidator implements Validator {
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
-        return NoteDTO.class.equals(clazz);
+        return NoteDetailDTO.class.equals(clazz);
     }
 
     @Override
     public void validate(@NonNull Object target, @NonNull Errors errors) {
 
-        NoteDTO noteDTO = (NoteDTO) target;
+        NoteDetailDTO noteDTO = (NoteDetailDTO) target;
 
         noteService.findByTitleAndUser(noteDTO.getTitle(), authService.getAuthenticatedUser()).ifPresent(n -> {
             if (!n.getUuid().equals(noteDTO.getUuid()))
                 errors.rejectValue("title", "note.title.exists",
-                        "Note with title '" + noteDTO.getTitle() + "' already exists");
+                        String.format(MessageConstants.NOTE_TITLE_EXISTS, noteDTO.getTitle()));
         });
 
     }

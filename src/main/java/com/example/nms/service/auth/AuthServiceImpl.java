@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.AuthResponseDTO;
 import com.example.nms.dto.LoginDTO;
 import com.example.nms.dto.RegisterDTO;
@@ -49,17 +50,17 @@ public class AuthServiceImpl implements AuthService {
             String token = jwtProvider.generateJWT(auth);
             User user = userService.findByUsername(loginDTO.getUsername())
                     .orElseThrow(() -> new UsernameNotFoundException(
-                            "User for username '" + loginDTO.getUsername() + "' not found"));
+                            String.format(MessageConstants.USER_USERNAME_NOT_FOUND, loginDTO.getUsername())));
             UserDTO userDTO = userMapper.toDTO(user);
 
             return new AuthResponseDTO(userDTO, token);
 
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Entered user credentials are not valid");
+            throw new BadCredentialsException(MessageConstants.AUTH_INVALID_CREDENTIALS);
         } catch (LockedException e) {
-            throw new LockedException("Your account has been locked");
+            throw new LockedException(MessageConstants.AUTH_ACCOUNT_LOCKED);
         } catch (DisabledException e) {
-            throw new DisabledException("Your account has been disabled");
+            throw new DisabledException(MessageConstants.AUTH_ACCOUNT_DISABLED);
         }
     }
 
@@ -69,7 +70,8 @@ public class AuthServiceImpl implements AuthService {
 
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
         Role userRole = roleService.findByName("ROLE_USER")
-                .orElseThrow(() -> new RoleNotFoundException("User role not found"));
+                .orElseThrow(() -> new RoleNotFoundException(
+                        String.format(MessageConstants.ROLE_NOT_FOUND, "ROLE_USER")));
 
         User user = new User(registerDTO.getUsername(), encodedPassword, registerDTO.getEmail());
         user.getRoles().add(userRole);

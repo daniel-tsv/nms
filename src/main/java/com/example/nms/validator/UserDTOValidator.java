@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.service.auth.AuthService;
@@ -40,12 +41,13 @@ public class UserDTOValidator implements Validator {
         userService.findByUsername(userDTO.getUsername()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
                 errors.rejectValue("username", "user.username.exists",
-                        "Username '" + u.getUsername() + "' has already been taken");
+                        String.format(MessageConstants.USERNAME_ALREADY_TAKEN, u.getUsername()));
         });
 
         userService.findByEmail(userDTO.getEmail()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
-                errors.rejectValue("email", "user.email.exists", "Email '" + u.getEmail() + "' has already been taken");
+                errors.rejectValue("email", "user.email.exists",
+                        String.format(MessageConstants.EMAIL_ALREADY_TAKEN, u.getEmail()));
         });
 
     }

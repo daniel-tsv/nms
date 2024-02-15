@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.User;
-import com.example.nms.exception.note.InvalidNoteException;
 import com.example.nms.exception.user.InvalidUserException;
 import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
@@ -52,17 +51,17 @@ public class AdminUserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> findByUUID(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(userMapper.toDTO(userService.findById(id)
-                .orElseThrow(() -> new UserIdNotFoundException("User with id '" + id + "' does not exist"))));
+                .orElseThrow(
+                        () -> new UserIdNotFoundException(String.format(MessageConstants.USER_ID_NOT_FOUND, id)))));
     }
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody @Validated UserDTO userDTO, BindingResult br) {
 
         userDTOValidator.validate(userDTO, br);
-
         if (br.hasErrors())
             throw new InvalidUserException(
-                    "user is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+                    br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
                             .collect(Collectors.joining("; ")));
 
         User createdUser = userService.save(userMapper.toEntity(userDTO));
@@ -77,10 +76,9 @@ public class AdminUserController {
             @RequestBody @Validated UserDTO userDTO, BindingResult br) {
 
         userDTOValidator.validate(userDTO, br);
-
         if (br.hasErrors())
-            throw new InvalidNoteException(
-                    "note is not valid: " + br.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+            throw new InvalidUserException(
+                    br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
                             .collect(Collectors.joining("; ")));
 
         User updatedUser = userService.updateById(id, userMapper.toEntity(userDTO));
@@ -90,8 +88,9 @@ public class AdminUserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable("id") UUID id) {
-        userService.delete(id);
-        return ResponseEntity.ok("Successfully deleted user with id: {id}");
+        if (userService.delete(id))
+            return ResponseEntity.ok(MessageConstants.USER_DELETED);
+        throw new UserIdNotFoundException(String.format(MessageConstants.USER_ID_NOT_FOUND, id));
     }
 
 }

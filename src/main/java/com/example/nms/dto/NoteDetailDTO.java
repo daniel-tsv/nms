@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @EqualsAndHashCode(of = { "uuid", "title" })
-public class NoteDTO {
+public class NoteDetailDTO {
 
     @JsonIgnore
     UUID uuid;
@@ -25,6 +25,8 @@ public class NoteDTO {
     @NotBlank(message = "Title cannot be empty or consist only of whitespace characters")
     @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")
     String title;
+
+    String contents;
 
     Instant createdAt;
 

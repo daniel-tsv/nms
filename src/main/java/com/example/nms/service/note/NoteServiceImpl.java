@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.nms.dto.NoteDTO;
+import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
 import com.example.nms.mapper.NoteMapper;
@@ -58,11 +58,13 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     @Transactional
-    public Note updateFromDTO(Note existingNote, NoteDTO updatedNoteDTO) {
+    public Note updateFromDTO(Note existingNote, NoteDetailDTO updatedNoteDTO) {
+
+        if (updatedNoteDTO.getContents() == null || updatedNoteDTO.getContents().isBlank())
+            updatedNoteDTO.setContents(existingNote.getContents());
 
         Note mappedNote = noteMapper.toEntity(updatedNoteDTO);
 
-        mappedNote.setContents(existingNote.getContents());
         mappedNote.setCreatedAt(existingNote.getCreatedAt());
         mappedNote.setUser(existingNote.getUser());
         mappedNote.setUuid(existingNote.getUuid());

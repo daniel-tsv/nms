@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
-import com.example.nms.dto.NoteDTO;
+import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
 
@@ -18,7 +18,7 @@ public interface NoteService {
 
     Note save(Note note);
 
-    Note updateFromDTO(Note existingNote, NoteDTO updatedNoteDTO);
+    Note updateFromDTO(Note existingNote, NoteDetailDTO updatedNoteDTO);
 
     boolean deleteByTitleAndOwner(String title, User owner);
 

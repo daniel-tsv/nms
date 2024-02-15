@@ -1,5 +1,6 @@
 package com.example.nms.controller;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.User;
 import com.example.nms.exception.user.InvalidUserException;
@@ -62,8 +64,12 @@ public class UserController {
 
     @DeleteMapping
     public ResponseEntity<String> deleteUser() {
-        if (userService.delete(authService.getAuthenticatedUser().getUuid()))
-            ResponseEntity.ok("User account was successfully deleted");
-        throw new UserIdNotFoundException("Failed to delete account - user was not found");
+
+        UUID userUUID = authService.getAuthenticatedUser().getUuid();
+
+        if (userService.delete(userUUID))
+            return ResponseEntity.ok(MessageConstants.USER_DELETED);
+        throw new UserIdNotFoundException(
+                String.format(MessageConstants.USER_ID_NOT_FOUND, userUUID));
     }
 }

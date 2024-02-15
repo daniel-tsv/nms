@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.service.user.UserService;
 
@@ -22,11 +23,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return new UserDetailsImpl(userService.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "The user with username '" + username + "' does not exist")));
+                        String.format(MessageConstants.USER_USERNAME_NOT_FOUND, username))));
     }
 
     public UserDetails loadUserById(UUID uuid) throws UserIdNotFoundException {
         return new UserDetailsImpl(userService.findById(uuid)
-                .orElseThrow(() -> new UserIdNotFoundException("The user with id '" + uuid + "' does not exist")));
+                .orElseThrow(
+                        () -> new UserIdNotFoundException(String.format(MessageConstants.USER_ID_NOT_FOUND, uuid))));
     }
 }
