@@ -81,7 +81,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public int countUserNotes(User user) {
+    public int getUserNotesCount(User user) {
         return noteRepository.countByUser(user);
     }
 

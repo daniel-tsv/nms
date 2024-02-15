@@ -26,6 +26,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
@@ -35,6 +36,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EqualsAndHashCode(of = "uuid")
 @ToString(exclude = { "notes", "password" })
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -65,33 +67,20 @@ public class User {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    Set<Role> roles;
+    Set<Role> roles = new HashSet<>();
 
-    boolean isAccountNonExpired;
+    boolean isAccountNonExpired = true;
 
-    boolean isAccountNonLocked;
+    boolean isAccountNonLocked = true;
 
-    boolean isCredentialsNonExpired;
+    boolean isCredentialsNonExpired = true;
 
-    boolean isEnabled;
-
-    public User() {
-        this.roles = new HashSet<>();
-        isAccountNonExpired = true;
-        isAccountNonLocked = true;
-        isCredentialsNonExpired = true;
-        isEnabled = true;
-    }
+    boolean isEnabled = true;
 
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email.toLowerCase();
-        this.roles = new HashSet<>();
-        isAccountNonExpired = true;
-        isAccountNonLocked = true;
-        isCredentialsNonExpired = true;
-        isEnabled = true;
     }
 
     public void setEmail(String email) {

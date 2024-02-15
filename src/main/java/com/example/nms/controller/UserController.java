@@ -40,7 +40,7 @@ public class UserController {
         User user = authService.getAuthenticatedUser();
 
         UserDTO userDTO = userMapper.toDTO(user);
-        userDTO.setNumberOfNotes(noteService.countUserNotes(user));
+        userDTO.setNumberOfNotes(noteService.getUserNotesCount(user));
 
         return ResponseEntity.ok(userDTO);
     }
@@ -55,7 +55,7 @@ public class UserController {
 
         User updatedUser = userService.updateEntityFromDTO(authService.getAuthenticatedUser(), updatedUserDTO);
         UserDTO userDTO = userMapper.toDTO(updatedUser);
-        userDTO.setNumberOfNotes(noteService.countUserNotes(updatedUser));
+        userDTO.setNumberOfNotes(noteService.getUserNotesCount(updatedUser));
 
         return ResponseEntity.ok(userDTO);
     }

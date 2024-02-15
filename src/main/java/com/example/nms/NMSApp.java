@@ -26,7 +26,7 @@ public class NMSApp {
 				return;
 
 			Role userRole = new Role("ROLE_USER");
-			roleService.createRole(userRole);
+			roleService.create(userRole);
 
 			Role adminRole = new Role("ROLE_ADMIN");
 			User admin = new User("admin", passwordEncoder.encode("admin"), "admin@admin.com");

@@ -22,6 +22,6 @@ public interface NoteService {
 
     boolean deleteByTitleAndOwner(String title, User owner);
 
-    int countUserNotes(User user);
+    int getUserNotesCount(User user);
 
 }

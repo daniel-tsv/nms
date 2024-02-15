@@ -45,7 +45,7 @@ public class Note {
     String title;
 
     @Lob
-    String contents;
+    String contents = "";
 
     @NotNull
     @ManyToOne
@@ -62,6 +62,5 @@ public class Note {
     public Note(String title, User user) {
         this.title = title;
         this.user = user;
-        this.contents = "";
     }
 }
