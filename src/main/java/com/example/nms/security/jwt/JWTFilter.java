@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.security.UserDetailsServiceImpl;
 
 import jakarta.servlet.FilterChain;
@@ -48,8 +49,8 @@ public class JWTFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
         } catch (JWTVerificationException e) {
-            // todo handle exceptions properly
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    String.format(MessageConstants.TOKEN_INVALID, e.getMessage()));
         }
 
         filterChain.doFilter(request, response);

@@ -9,11 +9,14 @@ import org.springframework.stereotype.Component;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.MissingClaimException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.entity.User;
-import com.example.nms.exception.user.InvalidUserException;
 import com.example.nms.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -34,8 +37,8 @@ public class JWTUtil {
         UserDetailsImpl userDetailsImpl = (UserDetailsImpl) auth.getPrincipal();
         User user = userDetailsImpl.getUser();
 
-        if (user.getUuid() == null) // todo throw token generation exception
-            throw new InvalidUserException("Failed to generate jwt token: User UUID is not set");
+        if (user.getUuid() == null)
+            throw new JWTCreationException(MessageConstants.TOKEN_UUID_CLAIM, null);
 
         return JWT.create()
                 .withSubject("user-details")
@@ -48,8 +51,8 @@ public class JWTUtil {
 
     public DecodedJWT validateAndDecodeToken(String token) throws JWTVerificationException {
 
-        if (token == null || token.trim().isEmpty()) // todo throw proper exception, move string to MessageConstants
-            throw new JWTVerificationException("JWT Token cannot be empty");
+        if (token == null || token.trim().isEmpty())
+            throw new JWTDecodeException(MessageConstants.TOKEN_EMPTY);
 
         JWTVerifier verifier = JWT
                 .require(Algorithm.HMAC256(secret))
@@ -61,8 +64,8 @@ public class JWTUtil {
         DecodedJWT jwt = verifier.verify(token);
 
         Claim userUuidClaim = jwt.getClaim(USER_UUID);
-        if (userUuidClaim == null || userUuidClaim.asString().isEmpty()) // throw proper exception, move string to MessageConstraints
-            throw new JWTVerificationException("Missing or empty USER_UUID in JWT Token");
+        if (userUuidClaim == null || userUuidClaim.toString().isBlank())
+            throw new MissingClaimException(USER_UUID);
 
         return jwt;
     }

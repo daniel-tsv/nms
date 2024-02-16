@@ -3,6 +3,7 @@ package com.example.nms.dto;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.example.nms.constants.MessageConstants;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.validation.constraints.NotBlank;
@@ -22,8 +23,8 @@ public class NoteDetailDTO {
     @JsonIgnore
     UUID uuid;
 
-    @NotBlank(message = "Title cannot be empty or consist only of whitespace characters")
-    @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")
+    @NotBlank(message = MessageConstants.NOTE_TITLE_EMPTY)
+    @Size(min = 1, max = 255, message = MessageConstants.NOTE_TITLE_LENGTH)
     String title;
 
     String contents;

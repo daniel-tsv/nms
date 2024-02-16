@@ -1,5 +1,7 @@
 package com.example.nms.dto;
 
+import com.example.nms.constants.MessageConstants;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -14,10 +16,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginDTO {
 
-    @NotBlank(message = "Username cannot be empty")
-    @Size(min = 2, max = 255, message = "Username length must be between 2 and 255 characters")
+    @NotBlank(message = MessageConstants.USERNAME_EMPTY)
+    @Size(min = 2, max = 255, message = MessageConstants.USERNAME_LENGTH)
     String username;
 
-    @NotBlank(message = "Password cannot be empty")
+    @NotBlank(message = MessageConstants.PASSWORD_EMPTY)
     String password;
 }
