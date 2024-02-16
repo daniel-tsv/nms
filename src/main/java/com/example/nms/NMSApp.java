@@ -22,17 +22,19 @@ public class NMSApp {
 	CommandLineRunner run(RoleService roleService, UserService userService, PasswordEncoder passwordEncoder) {
 		return args -> {
 
-			if (userService.findByUsername("admin").isPresent())
+			String admin = "admin";
+
+			if (userService.findByUsername(admin).isPresent())
 				return;
 
 			Role userRole = new Role("ROLE_USER");
 			roleService.create(userRole);
 
 			Role adminRole = new Role("ROLE_ADMIN");
-			User admin = new User("admin", passwordEncoder.encode("admin"), "admin@admin.com");
-			admin.getRoles().add(adminRole);
+			User adminUser = new User(admin, passwordEncoder.encode(admin), "admin@admin.com");
+			adminUser.getRoles().add(adminRole);
 
-			userService.save(admin);
+			userService.save(adminUser);
 		};
 	}
 }

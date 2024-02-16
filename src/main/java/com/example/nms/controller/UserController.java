@@ -14,12 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.UserDTO;
-import com.example.nms.entity.User;
 import com.example.nms.exception.user.InvalidUserException;
 import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.service.auth.AuthService;
-import com.example.nms.service.note.NoteService;
 import com.example.nms.service.user.UserService;
 import com.example.nms.validator.UserDTOValidator;
 
@@ -33,33 +31,29 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final NoteService noteService;
     private final AuthService authService;
     private final UserDTOValidator userDTOValidator;
 
     @GetMapping
     public ResponseEntity<UserDTO> getUserProfile() {
-        User user = authService.getAuthenticatedUser();
-
-        UserDTO userDTO = userMapper.toDTO(user);
-        userDTO.setNumberOfNotes(noteService.getUserNotesCount(user));
-
-        return ResponseEntity.ok(userDTO);
+        return ResponseEntity.ok(
+                userMapper.toDTO(
+                        authService.getAuthenticatedUser()));
     }
 
     @PatchMapping
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserDTO updatedUserDTO, BindingResult br) {
+
         userDTOValidator.validate(updatedUserDTO, br);
         if (br.hasErrors())
             throw new InvalidUserException(
                     br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
                             .collect(Collectors.joining("; ")));
 
-        User updatedUser = userService.updateEntityFromDTO(authService.getAuthenticatedUser(), updatedUserDTO);
-        UserDTO userDTO = userMapper.toDTO(updatedUser);
-        userDTO.setNumberOfNotes(noteService.getUserNotesCount(updatedUser));
-
-        return ResponseEntity.ok(userDTO);
+        return ResponseEntity.ok(
+                userMapper.toDTO(
+                        userService.updateEntityFromDTO(
+                                authService.getAuthenticatedUser(), updatedUserDTO)));
     }
 
     @DeleteMapping
@@ -69,6 +63,7 @@ public class UserController {
 
         if (userService.delete(userUUID))
             return ResponseEntity.ok(MessageConstants.USER_DELETED);
+
         throw new UserIdNotFoundException(
                 String.format(MessageConstants.USER_ID_NOT_FOUND, userUUID));
     }
