@@ -27,6 +27,7 @@ public class NoteDetailDTO {
     @Size(min = 1, max = 255, message = MessageConstants.NOTE_TITLE_LENGTH)
     String title;
 
+    @Size(max = 10000, message = MessageConstants.NOTE_CONTENT_LENGTH)
     String contents;
 
     Instant createdAt;

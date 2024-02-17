@@ -1,5 +1,6 @@
 package com.example.nms.controller;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.NoteDetailDTO;
@@ -39,7 +41,7 @@ public class NoteController {
 	private final AuthService authService;
 	private final NoteDTOValidator noteDTOValidator;
 
-	@GetMapping("/{title}")
+	@GetMapping("/title/{title}")
 	public ResponseEntity<NoteDetailDTO> findByTitle(@PathVariable("title") String title) {
 		return ResponseEntity.ok(
 				noteMapper.toDetailDTO(
@@ -58,8 +60,27 @@ public class NoteController {
 
 		return ResponseEntity.ok(
 				noteMapper.toSummaryDTO(
-						noteService.findNotesByUser(page, size, direction, sortBy, authService.getAuthenticatedUser())
+						noteService
+								.findUserNotes(
+										noteService.createPageRequestOf(page, size, direction, sortBy),
+										authService.getAuthenticatedUser())
 								.toList()));
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<List<NoteSummaryDTO>> searchNotes(
+			@RequestParam(name = "term", required = true) String term,
+			@RequestParam(name = "searchInContents", required = false, defaultValue = "false") boolean searchInContents,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
+			@RequestParam(name = "size", required = false, defaultValue = "20") int size,
+			@RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
+			@RequestParam(name = "sort", required = false, defaultValue = "updatedAt") String sortBy) {
+
+		return ResponseEntity.ok(
+				noteMapper.toSummaryDTO(
+						noteService.searchNotes(term, searchInContents,
+								noteService.createPageRequestOf(page, size, direction, sortBy),
+								authService.getAuthenticatedUser()).toList()));
 	}
 
 	@PostMapping
@@ -73,22 +94,24 @@ public class NoteController {
 							.collect(Collectors.toList())
 							.toString());
 
-		return ResponseEntity.ok(
-				noteMapper.toDetailDTO(
-						noteService.save(
-								new Note(noteDTO.getTitle(), authService.getAuthenticatedUser(),
-										noteDTO.getContents()))));
+		noteService.save(
+				new Note(noteDTO.getTitle(), authService.getAuthenticatedUser(), noteDTO.getContents()));
+
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/title/{title}")
+				.buildAndExpand(noteDTO.getTitle()).toUri();
+
+		return ResponseEntity.created(location).build();
 	}
 
-	@PatchMapping("/{title}")
-	public ResponseEntity<Object> updateNote(@PathVariable("title") String title,
+	@PatchMapping("/title/{title}")
+	public ResponseEntity<NoteDetailDTO> updateNote(@PathVariable("title") String title,
 			@RequestBody @Valid NoteDetailDTO noteDTO, BindingResult br) {
 
 		Note existingNote = noteService.findByTitleAndUser(title, authService.getAuthenticatedUser())
 				.orElseThrow(() -> new NoteNotFoundException(
 						String.format(MessageConstants.NOTE_NOT_FOUND, title)));
-
 		noteDTO.setUuid(existingNote.getUuid());
+
 		noteDTOValidator.validate(noteDTO, br);
 		if (br.hasFieldErrors())
 			throw new InvalidNoteException(
@@ -102,10 +125,10 @@ public class NoteController {
 						noteService.updateFromDTO(existingNote, noteDTO)));
 	}
 
-	@DeleteMapping("/{title}")
-	public ResponseEntity<String> deleteNote(@PathVariable("title") String title) {
+	@DeleteMapping("/title/{title}")
+	public ResponseEntity<Void> deleteNote(@PathVariable("title") String title) {
 		if (noteService.deleteByTitleAndOwner(title, authService.getAuthenticatedUser()))
-			return ResponseEntity.ok(String.format(MessageConstants.NOTE_DELETED, title));
+			return ResponseEntity.noContent().build();
 		throw new NoteNotFoundException(String.format(MessageConstants.NOTE_NOT_FOUND, title));
 	}
 

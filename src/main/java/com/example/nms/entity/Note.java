@@ -12,7 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -44,7 +43,7 @@ public class Note {
     @Column(nullable = false, length = 255)
     String title;
 
-    @Lob
+    @Size(max = 10000)
     String contents = "";
 
     @NotNull

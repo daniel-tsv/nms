@@ -14,9 +14,9 @@ public final class MessageConstants {
 
     // Note
     public static final String NOTE_TITLE_EXISTS = "Note with title %s already exists";
+    public static final String NOTE_TITLE_BANNED = "Note title contains banned words: %s";
     public static final String NOTE_NOT_FOUND = "Note %s was not found";
-    public static final String NOTE_DELETED = "Note %s was deleted successfully";
-
+    public static final String NOTE_SEARCH_TERM_EMPTY = "Search term cannot be empty";
     // Role
     public static final String ROLE_NOT_FOUND = "Role %s was not found";
 
@@ -28,6 +28,7 @@ public final class MessageConstants {
 
     public static final String USERNAME_LENGTH = "Username length must be between 2 and 255 characters";
     public static final String NOTE_TITLE_LENGTH = "Title must be between 1 and 255 characters";
+    public static final String NOTE_CONTENT_LENGTH = "Note contents cannot exceed 10,000 characters";
     public static final String EMAIL_NOT_VALID = "Email should be valid";
 
     public static final String USERNAME_ALREADY_TAKEN = "Username %s is already taken";

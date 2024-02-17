@@ -6,10 +6,12 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
@@ -37,17 +39,24 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Page<Note> findNotesByUser(int page, int size, String direction, String sortBy, User owner) {
+    public Page<Note> findUserNotes(Pageable pageable, User owner) {
+        return noteRepository.findAllByUser(pageable, owner);
+    }
 
-        page = Math.max(page, 0);
-        size = Math.max(size, 1);
-        sortBy = Arrays.asList("title", "createdAt", "updatedAt").contains(sortBy) ? sortBy : "updatedAt";
-        Sort.Direction sortDirection = Sort.Direction.ASC.name().equalsIgnoreCase(direction)
-                ? Sort.Direction.ASC
-                : Sort.Direction.DESC;
-        Sort sort = Sort.by(sortDirection, sortBy);
+    @Override
+    public Page<Note> searchNotes(String term, boolean searchInContents, Pageable pageable, User user) {
 
-        return noteRepository.findAllByUser(PageRequest.of(page, size, sort), owner);
+        if (term == null || term.isBlank())
+            throw new IllegalArgumentException(MessageConstants.NOTE_SEARCH_TERM_EMPTY);
+
+        return searchInContents
+                ? noteRepository.findByContentsContainingIgnoreCaseAndUser(term, pageable, user)
+                : noteRepository.findByTitleContainingIgnoreCaseAndUser(term, pageable, user);
+    }
+
+    @Override
+    public int getUserNotesCount(User user) {
+        return noteRepository.countByUser(user);
     }
 
     @Override
@@ -83,8 +92,16 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public int getUserNotesCount(User user) {
-        return noteRepository.countByUser(user);
+    public PageRequest createPageRequestOf(int page, int size, String direction, String sortBy) {
+        page = Math.max(page, 0);
+        size = Math.max(size, 1);
+        sortBy = Arrays.asList("title", "createdAt", "updatedAt").contains(sortBy) ? sortBy : "updatedAt";
+        Sort.Direction sortDirection = Sort.Direction.ASC.name().equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+        Sort sort = Sort.by(sortDirection, sortBy);
+
+        return PageRequest.of(page, size, sort);
     }
 
 }
