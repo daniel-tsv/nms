@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.example.nms.dto.ErrorResponseDTO;
 import com.example.nms.exception.note.InvalidNoteException;
 import com.example.nms.exception.note.NoteNotFoundException;
+import com.example.nms.exception.role.InvalidRoleException;
+import com.example.nms.exception.role.RoleIdNotFoundException;
+import com.example.nms.exception.role.RoleNameNotFoundException;
 import com.example.nms.exception.user.InvalidUserException;
 import com.example.nms.exception.user.UserIdNotFoundException;
 
@@ -22,13 +25,15 @@ import jakarta.servlet.http.HttpServletRequest;
 @ResponseBody
 public class ApiGlobalExceptionHandler {
 
-    @ExceptionHandler({ UsernameNotFoundException.class, UserIdNotFoundException.class, NoteNotFoundException.class })
+    @ExceptionHandler({ UsernameNotFoundException.class, UserIdNotFoundException.class, NoteNotFoundException.class,
+            RoleIdNotFoundException.class, RoleNameNotFoundException.class })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponseDTO notFoundHandler(Exception ex, HttpServletRequest request) {
         return ErrorResponseDTO.create("Not found", ex, request, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({ BadCredentialsException.class, InvalidUserException.class, InvalidNoteException.class })
+    @ExceptionHandler({ BadCredentialsException.class, InvalidUserException.class, InvalidNoteException.class,
+            InvalidRoleException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseDTO badRequestHandler(Exception ex, HttpServletRequest request) {
         return ErrorResponseDTO.create("Invalid data", ex, request, HttpStatus.BAD_REQUEST);

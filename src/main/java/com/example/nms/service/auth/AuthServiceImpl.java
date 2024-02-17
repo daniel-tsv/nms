@@ -19,7 +19,7 @@ import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.Role;
 import com.example.nms.entity.User;
-import com.example.nms.exception.role.RoleNotFoundException;
+import com.example.nms.exception.role.RoleNameNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.security.UserDetailsImpl;
 import com.example.nms.security.jwt.JWTUtil;
@@ -70,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
 
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
         Role userRole = roleService.findByName("ROLE_USER")
-                .orElseThrow(() -> new RoleNotFoundException(
+                .orElseThrow(() -> new RoleNameNotFoundException(
                         String.format(MessageConstants.ROLE_NOT_FOUND, "ROLE_USER")));
 
         User user = new User(registerDTO.getUsername(), encodedPassword, registerDTO.getEmail());

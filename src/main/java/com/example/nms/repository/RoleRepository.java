@@ -10,5 +10,8 @@ import com.example.nms.entity.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, UUID> {
+
     Optional<Role> findByName(String name);
+
+    boolean existsById(UUID id);
 }

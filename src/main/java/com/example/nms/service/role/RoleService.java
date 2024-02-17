@@ -1,12 +1,22 @@
 package com.example.nms.service.role;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.example.nms.entity.Role;
 
 public interface RoleService {
 
+    Role create(Role userRole);
+
+    Optional<Role> findById(UUID id);
+
     Optional<Role> findByName(String authority);
 
-    Role create(Role userRole);
+    List<Role> findAll();
+
+    Optional<Role> updateById(UUID id, Role role);
+
+    boolean delete(UUID id);
 }

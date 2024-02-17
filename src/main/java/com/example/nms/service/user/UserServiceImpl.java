@@ -10,10 +10,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.UserDTO;
+import com.example.nms.entity.Role;
 import com.example.nms.entity.User;
+import com.example.nms.exception.role.RoleIdNotFoundException;
+import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.repository.UserRepository;
+import com.example.nms.service.role.RoleService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final RoleService roleService;
 
     @Override
     public Optional<User> findById(UUID id) {
@@ -89,13 +95,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateByUsername(String username, User updatedUser) {
-        updatedUser.setUsername(username);
-        return userRepository.save(updatedUser);
-    }
-
-    @Override
-    @Transactional
     public User updateEntityFromDTO(User existingUser, UserDTO updatedUserDTO) {
 
         User updatedUser = userMapper.toEntity(updatedUserDTO);
@@ -112,5 +111,38 @@ public class UserServiceImpl implements UserService {
         updatedUser.setEnabled(existingUser.isEnabled());
 
         return userRepository.save(updatedUser);
+    }
+
+    // todo test
+    @Override
+    @Transactional
+    public User assignRole(UUID userId, UUID roleId) {
+
+        User user = this.findById(userId).orElseThrow(
+                () -> new UserIdNotFoundException(
+                        String.format(MessageConstants.USER_ID_NOT_FOUND, userId)));
+
+        Role role = roleService.findById(roleId).orElseThrow(
+                () -> new RoleIdNotFoundException(String.format(MessageConstants.ROLE_ID_NOT_FOUND, roleId)));
+
+        user.getRoles().add(role);
+        return userRepository.save(user);
+
+    }
+
+    // todo test
+    @Override
+    @Transactional
+    public User removeRole(UUID userId, UUID roleId) {
+
+        User user = this.findById(userId).orElseThrow(
+                () -> new UserIdNotFoundException(
+                        String.format(MessageConstants.USER_ID_NOT_FOUND, userId)));
+
+        Role role = roleService.findById(roleId).orElseThrow(
+                () -> new RoleIdNotFoundException(String.format(MessageConstants.ROLE_ID_NOT_FOUND, roleId)));
+
+        user.getRoles().remove(role);
+        return userRepository.save(user);
     }
 }

@@ -22,12 +22,14 @@ public interface UserService {
 
     User updateById(UUID id, User updatedUser);
 
-    User updateByUsername(String username, User updatedUser);
-
     boolean delete(UUID id);
 
     boolean deleteByUsername(String username);
 
     User updateEntityFromDTO(User existingUser, UserDTO updatedUserDTO);
+
+    User assignRole(UUID userId, UUID roleId);
+
+    User removeRole(UUID userId, UUID roleId);
 
 }
