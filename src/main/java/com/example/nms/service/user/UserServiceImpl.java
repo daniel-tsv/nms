@@ -70,12 +70,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public boolean delete(UUID id) {
-
-        if (!userRepository.existsById(id))
-            return false;
-
-        userRepository.deleteById(id);
-        return true;
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     @Override

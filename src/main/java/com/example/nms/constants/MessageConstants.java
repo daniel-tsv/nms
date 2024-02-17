@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 public final class MessageConstants {
 
     // User
+    public static final String USER_NOT_FOUND = "User was not found";
     public static final String USER_ID_NOT_FOUND = "User with id %s was not found";
     public static final String USER_USERNAME_NOT_FOUND = "User with username %s was not found";
     public static final String USER_NOT_VALID = "User is not valid: ";
@@ -17,6 +18,7 @@ public final class MessageConstants {
     public static final String NOTE_TITLE_BANNED = "Note title contains banned words: %s";
     public static final String NOTE_NOT_FOUND = "Note %s was not found";
     public static final String NOTE_SEARCH_TERM_EMPTY = "Search term cannot be empty";
+
     // Role
     public static final String ROLE_NOT_FOUND = "Role %s was not found";
 

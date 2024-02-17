@@ -1,6 +1,5 @@
 package com.example.nms.controller;
 
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -57,14 +56,12 @@ public class UserController {
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteUser() {
+    public ResponseEntity<Void> deleteUser() {
 
-        UUID userUUID = authService.getAuthenticatedUser().getUuid();
-
-        if (userService.delete(userUUID))
-            return ResponseEntity.ok(MessageConstants.USER_DELETED);
+        if (userService.delete(authService.getAuthenticatedUser().getUuid()))
+            return ResponseEntity.noContent().build();
 
         throw new UserIdNotFoundException(
-                String.format(MessageConstants.USER_ID_NOT_FOUND, userUUID));
+                String.format(MessageConstants.USER_NOT_FOUND));
     }
 }
