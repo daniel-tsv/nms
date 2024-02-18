@@ -7,10 +7,13 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.nms.constants.MessageConstants;
+import com.example.nms.dto.AdminUserDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.Role;
 import com.example.nms.entity.User;
@@ -18,6 +21,7 @@ import com.example.nms.exception.role.RoleIdNotFoundException;
 import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.repository.UserRepository;
+import com.example.nms.security.UserDetailsImpl;
 import com.example.nms.service.role.RoleService;
 
 import lombok.RequiredArgsConstructor;
@@ -95,25 +99,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateEntityFromDTO(User existingUser, UserDTO updatedUserDTO) {
-
-        User updatedUser = userMapper.toEntity(updatedUserDTO);
-
-        updatedUser.setUuid(existingUser.getUuid());
-        updatedUser.setNotes(existingUser.getNotes());
-        updatedUser.setPassword(existingUser.getPassword());
-        updatedUser.setRoles(existingUser.getRoles());
-
-        updatedUser.setAccountNonExpired(existingUser.isAccountNonExpired());
-        updatedUser.setAccountNonLocked(existingUser.isAccountNonLocked());
-        updatedUser.setCredentialsNonExpired(existingUser.isCredentialsNonExpired());
-        updatedUser.setCreatedAt(existingUser.getCreatedAt());
-        updatedUser.setEnabled(existingUser.isEnabled());
-
-        return userRepository.save(updatedUser);
+    public User updateUser(UserDTO updatedUserDTO) {
+        return userRepository.save(
+                userMapper.updateUserFromDTO(
+                        getAuthenticatedUser(), updatedUserDTO));
     }
 
-    // todo test
+    @Override
+    @Transactional
+    public User updateUserFromAdminDTO(UUID existingUserId, AdminUserDTO updatedUserDTO) {
+
+        User existingUser = userRepository.findById(existingUserId)
+                .orElseThrow(() -> new UserIdNotFoundException(
+                        String.format(MessageConstants.USER_ID_NOT_FOUND, existingUserId)));
+
+        return userRepository.save(
+                userMapper.updateUserFromAdminDTO(existingUser, updatedUserDTO));
+    }
+
     @Override
     @Transactional
     public User assignRole(UUID userId, UUID roleId) {
@@ -130,7 +133,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    // todo test
     @Override
     @Transactional
     public User removeRole(UUID userId, UUID roleId) {
@@ -144,5 +146,12 @@ public class UserServiceImpl implements UserService {
 
         user.getRoles().remove(role);
         return userRepository.save(user);
+    }
+
+    @Override
+    public User getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+        return userDetails.getUser();
     }
 }

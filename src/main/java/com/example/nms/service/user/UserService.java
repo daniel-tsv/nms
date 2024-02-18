@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
+import com.example.nms.dto.AdminUserDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.User;
 
@@ -26,10 +27,14 @@ public interface UserService {
 
     boolean deleteByUsername(String username);
 
-    User updateEntityFromDTO(User existingUser, UserDTO updatedUserDTO);
+    User updateUser(UserDTO updatedUserDTO);
+
+    User updateUserFromAdminDTO(UUID existingUserId, AdminUserDTO updatedAdminUserDTO);
 
     User assignRole(UUID userId, UUID roleId);
 
     User removeRole(UUID userId, UUID roleId);
+
+    User getAuthenticatedUser();
 
 }

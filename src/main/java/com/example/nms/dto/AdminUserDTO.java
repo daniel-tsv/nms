@@ -1,5 +1,6 @@
 package com.example.nms.dto;
 
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,19 +12,27 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminUserDTO {
 
     UUID uuid;
 
     String username;
 
+    String email;
+
     int numberOfNotes;
 
     Set<Role> roles;
 
-    public AdminUserDTO(String username) {
-        this.username = username;
-    }
+    Instant createdAt;
+
+    Boolean isAccountNonExpired;
+
+    Boolean isAccountNonLocked;
+
+    Boolean isCredentialsNonExpired;
+
+    Boolean isEnabled;
 }

@@ -8,7 +8,6 @@ import org.springframework.validation.Validator;
 import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
-import com.example.nms.service.auth.AuthService;
 import com.example.nms.service.user.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 public class UserDTOValidator implements Validator {
 
     private final UserService userService;
-    private final AuthService authService;
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
@@ -35,7 +33,7 @@ public class UserDTOValidator implements Validator {
             userDTO = new UserDTO(regDTO.getUsername(), regDTO.getEmail());
         } else {
             userDTO = (UserDTO) target;
-            userDTO.setUuid(authService.getAuthenticatedUser().getUuid());
+            userDTO.setUuid(userService.getAuthenticatedUser().getUuid());
         }
 
         userService.findByUsername(userDTO.getUsername()).ifPresent(u -> {

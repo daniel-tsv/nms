@@ -11,7 +11,6 @@ public final class MessageConstants {
     public static final String USER_ID_NOT_FOUND = "User with id %s was not found";
     public static final String USER_USERNAME_NOT_FOUND = "User with username %s was not found";
     public static final String USER_NOT_VALID = "User is not valid: ";
-    public static final String USER_DELETED = "User was deleted successfully";
 
     // Username
     public static final String USERNAME_EMPTY = "Username cannot be empty";

@@ -16,7 +16,6 @@ import com.example.nms.dto.UserDTO;
 import com.example.nms.exception.user.InvalidUserException;
 import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
-import com.example.nms.service.auth.AuthService;
 import com.example.nms.service.user.UserService;
 import com.example.nms.validator.UserDTOValidator;
 
@@ -30,14 +29,13 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final AuthService authService;
     private final UserDTOValidator userDTOValidator;
 
     @GetMapping
     public ResponseEntity<UserDTO> getUserProfile() {
         return ResponseEntity.ok(
                 userMapper.toDTO(
-                        authService.getAuthenticatedUser()));
+                        userService.getAuthenticatedUser()));
     }
 
     @PatchMapping
@@ -51,14 +49,13 @@ public class UserController {
 
         return ResponseEntity.ok(
                 userMapper.toDTO(
-                        userService.updateEntityFromDTO(
-                                authService.getAuthenticatedUser(), updatedUserDTO)));
+                        userService.updateUser(updatedUserDTO)));
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteUser() {
 
-        if (userService.delete(authService.getAuthenticatedUser().getUuid()))
+        if (userService.delete(userService.getAuthenticatedUser().getUuid()))
             return ResponseEntity.noContent().build();
 
         throw new UserIdNotFoundException(

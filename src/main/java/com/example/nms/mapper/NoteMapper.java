@@ -12,19 +12,19 @@ import com.example.nms.entity.Note;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface NoteMapper {
 
-    Note toEntity(NoteSummaryDTO noteDTO);
-
-    NoteSummaryDTO toSummaryDTO(Note note);
-
     Note toEntity(NoteDetailDTO noteDTO);
 
     NoteDetailDTO toDetailDTO(Note note);
 
-    List<Note> toEntity(List<NoteSummaryDTO> noteDTOs);
-
-    List<NoteSummaryDTO> toSummaryDTO(List<Note> notes);
-
     List<Note> toEntityFromDetailDTO(List<NoteDetailDTO> noteDTOs);
 
     List<NoteDetailDTO> toDetailDTO(List<Note> notes);
+
+    Note toEntity(NoteSummaryDTO noteDTO);
+
+    NoteSummaryDTO toSummaryDTO(Note note);
+
+    List<Note> toEntity(List<NoteSummaryDTO> noteDTOs);
+
+    List<NoteSummaryDTO> toSummaryDTO(List<Note> notes);
 }

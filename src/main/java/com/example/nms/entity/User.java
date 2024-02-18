@@ -69,21 +69,25 @@ public class User {
     @JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     Set<Role> roles = new HashSet<>();
 
-    boolean isAccountNonExpired = true;
+    @Column(nullable = false)
+    Boolean isAccountNonExpired = Boolean.TRUE;
 
-    boolean isAccountNonLocked = true;
+    @Column(nullable = false)
+    Boolean isAccountNonLocked = Boolean.TRUE;
 
-    boolean isCredentialsNonExpired = true;
+    @Column(nullable = false)
+    Boolean isCredentialsNonExpired = Boolean.TRUE;
 
-    boolean isEnabled = true;
+    @Column(nullable = false)
+    Boolean isEnabled = Boolean.TRUE;
 
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
-        this.email = email.toLowerCase();
+        this.email = email != null ? email.toLowerCase() : email;
     }
 
     public void setEmail(String email) {
-        this.email = email.toLowerCase();
+        this.email = email != null ? email.toLowerCase() : email;
     }
 }

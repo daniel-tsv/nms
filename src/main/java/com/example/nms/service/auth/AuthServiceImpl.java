@@ -6,7 +6,6 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ import com.example.nms.entity.Role;
 import com.example.nms.entity.User;
 import com.example.nms.exception.role.RoleNameNotFoundException;
 import com.example.nms.mapper.UserMapper;
-import com.example.nms.security.UserDetailsImpl;
 import com.example.nms.security.jwt.JWTUtil;
 import com.example.nms.service.role.RoleService;
 import com.example.nms.service.user.UserService;
@@ -78,13 +76,6 @@ public class AuthServiceImpl implements AuthService {
         userService.save(user);
 
         return loginUser(new LoginDTO(registerDTO.getUsername(), registerDTO.getPassword()));
-    }
-
-    @Override
-    public User getAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
-        return userDetails.getUser();
     }
 
 }
