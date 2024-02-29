@@ -50,4 +50,8 @@ public final class MessageConstants {
     public static final String TOKEN_EMPTY = "JWT Token cannot be empty";
     public static final String TOKEN_UUID_CLAIM = "UUID claim is missing";
     public static final String TOKEN_INVALID = "Invalid JWT Token: %s";
+
+    // Testing
+    public static final String EXPECTED_EXCEPTION_WAS_NOT_THROWN = "Expected %s was not thrown";
+
 }

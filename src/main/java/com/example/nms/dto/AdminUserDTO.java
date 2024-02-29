@@ -1,17 +1,21 @@
 package com.example.nms.dto;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import com.example.nms.entity.Role;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminUserDTO {
@@ -24,6 +28,7 @@ public class AdminUserDTO {
 
     int numberOfNotes;
 
+    @JsonDeserialize(as = LinkedHashSet.class)
     Set<Role> roles;
 
     Instant createdAt;

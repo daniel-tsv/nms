@@ -66,7 +66,7 @@ public class AdminUserController {
         throw new UserIdNotFoundException(String.format(MessageConstants.USER_ID_NOT_FOUND, id));
     }
 
-    @PostMapping("/{id}/role/{roleId}")
+    @PostMapping("/{id}/roles/{roleId}")
     public ResponseEntity<AdminUserDTO> assignRole(@PathVariable("id") UUID userId,
             @PathVariable("roleId") UUID roleId) {
         return ResponseEntity.ok(
@@ -74,7 +74,7 @@ public class AdminUserController {
                         userService.assignRole(userId, roleId)));
     }
 
-    @DeleteMapping("/{id}/role/{roleId}")
+    @DeleteMapping("/{id}/roles/{roleId}")
     public ResponseEntity<AdminUserDTO> removeRole(@PathVariable("id") UUID userId,
             @PathVariable("roleId") UUID roleId) {
         return ResponseEntity.ok(
