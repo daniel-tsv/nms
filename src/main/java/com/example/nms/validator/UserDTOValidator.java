@@ -8,7 +8,7 @@ import org.springframework.validation.Validator;
 import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
-import com.example.nms.service.user.UserService;
+import com.example.nms.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserDTOValidator implements Validator {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
@@ -28,21 +28,20 @@ public class UserDTOValidator implements Validator {
 
         UserDTO userDTO;
 
-        if (target instanceof RegisterDTO) {
-            RegisterDTO regDTO = (RegisterDTO) target;
-            userDTO = new UserDTO(regDTO.getUsername(), regDTO.getEmail());
-        } else {
+        if (target instanceof UserDTO) {
             userDTO = (UserDTO) target;
-            userDTO.setUuid(userService.getAuthenticatedUser().getUuid());
+        } else {
+            RegisterDTO register = (RegisterDTO) target;
+            userDTO = new UserDTO(register.getUsername(), register.getEmail());
         }
 
-        userService.findByUsername(userDTO.getUsername()).ifPresent(u -> {
+        userRepository.findByUsernameIgnoreCase(userDTO.getUsername()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
                 errors.rejectValue("username", "user.username.exists",
                         String.format(MessageConstants.USERNAME_ALREADY_TAKEN, u.getUsername()));
         });
 
-        userService.findByEmail(userDTO.getEmail()).ifPresent(u -> {
+        userRepository.findByEmailIgnoreCase(userDTO.getEmail()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
                 errors.rejectValue("email", "user.email.exists",
                         String.format(MessageConstants.EMAIL_ALREADY_TAKEN, u.getEmail()));

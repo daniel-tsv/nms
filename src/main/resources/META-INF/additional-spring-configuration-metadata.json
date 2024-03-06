@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "nms.security.jwt.token-expiration-millis",
+      "type": "java.lang.String",
+      "description": "Defines the lifespan of the JWT (JSON Web Tokens) in milliseconds."
+    },
+    {
+      "name": "nms.security.jwt.token-secret",
+      "type": "java.lang.String",
+      "description": "This property is used to store the secret key for encoding and decoding JWT (JSON Web Tokens)."
+    },
+    {
+      "name": "nms.security.admin.username",
+      "type": "java.lang.String",
+      "description": "This property is used to define the username for the admin user."
+    },
+    {
+      "name": "nms.security.admin.password",
+      "type": "java.lang.String",
+      "description": "This property is used to define the password for the admin user."
+    },
+    {
+      "name": "nms.security.admin.email",
+      "type": "java.lang.String",
+      "description": "This property is used to define the email for the admin user."
+    }
+  ]
+}

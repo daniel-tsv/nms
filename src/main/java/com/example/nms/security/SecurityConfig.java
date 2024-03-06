@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.nms.constants.RoleConstants;
 import com.example.nms.security.jwt.JWTFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String ADMIN = "ADMIN";
-    private static final String USER = "USER";
     private final JWTFilter jwtFilter;
 
     @Bean
@@ -39,8 +38,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register").permitAll()
-                        .requestMatchers("/admin/**").hasRole(ADMIN)
-                        .requestMatchers("/user", "/notes").hasAnyRole(USER, ADMIN)
+                        .requestMatchers("/admin/**").hasRole(RoleConstants.ADMIN)
+                        .requestMatchers("/user", "/notes").hasAnyRole(
+                                RoleConstants.USER, RoleConstants.ADMIN)
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

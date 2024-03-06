@@ -11,18 +11,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Errors;
 
-import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.AdminUserDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.Role;
 import com.example.nms.entity.User;
 import com.example.nms.exception.role.RoleIdNotFoundException;
 import com.example.nms.exception.user.UserIdNotFoundException;
+import com.example.nms.exception.user.UserNameNotFoundException;
+import com.example.nms.exception.user.UserValidationException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.repository.UserRepository;
 import com.example.nms.security.UserDetailsImpl;
 import com.example.nms.service.role.RoleService;
+import com.example.nms.validator.UserDTOValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoleService roleService;
+    private final UserDTOValidator userDTOValidator;
 
     @Override
     public Optional<User> findById(UUID id) {
@@ -61,48 +65,51 @@ public class UserServiceImpl implements UserService {
                 : Sort.Direction.DESC;
         Sort sort = Sort.by(sortDirection, sortBy);
 
-        return userRepository.findAll(PageRequest.of(page, size, sort));
+        PageRequest request = PageRequest.of(page, size, sort);
+
+        return userRepository.findAll(request);
     }
 
     @Override
     @Transactional
-    public User save(User user) {
+    public User createUser(User user) {
         return userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public User updateById(UUID id, User updatedUser) {
-        updatedUser.setUuid(id);
+    public void deleteById(UUID id) {
+        if (!userRepository.existsById(id))
+            throw new UserIdNotFoundException(id);
+
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByUsername(String username) {
+        if (!userRepository.existsByUsernameIgnoreCase(username))
+            throw new UserNameNotFoundException(username);
+
+        userRepository.deleteByUsernameIgnoreCase(username);
+    }
+
+    // TODO test
+    @Override
+    @Transactional
+    public User updateUserFromUserDTO(UUID existingUserId, UserDTO updatedUserDTO, Errors errors) {
+
+        updatedUserDTO.setUuid(existingUserId);
+        userDTOValidator.validate(updatedUserDTO, errors);
+        if (errors.hasErrors())
+            throw new UserValidationException(errors);
+
+        User existingUser = userRepository.findById(existingUserId)
+                .orElseThrow(() -> new UserIdNotFoundException(existingUserId));
+
+        User updatedUser = userMapper.updateUserFromDTO(existingUser, updatedUserDTO);
+
         return userRepository.save(updatedUser);
-    }
-
-    @Override
-    @Transactional
-    public boolean delete(UUID id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    @Transactional
-    public boolean deleteByUsername(String username) {
-        if (userRepository.existsByUsernameIgnoreCase(username)) {
-            userRepository.deleteByUsernameIgnoreCase(username);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    @Transactional
-    public User updateUser(UserDTO updatedUserDTO) {
-        return userRepository.save(
-                userMapper.updateUserFromDTO(
-                        getAuthenticatedUser(), updatedUserDTO));
     }
 
     @Override
@@ -110,25 +117,24 @@ public class UserServiceImpl implements UserService {
     public User updateUserFromAdminDTO(UUID existingUserId, AdminUserDTO updatedUserDTO) {
 
         User existingUser = userRepository.findById(existingUserId)
-                .orElseThrow(() -> new UserIdNotFoundException(
-                        String.format(MessageConstants.USER_ID_NOT_FOUND, existingUserId)));
+                .orElseThrow(() -> new UserIdNotFoundException(existingUserId));
 
-        return userRepository.save(
-                userMapper.updateUserFromAdminDTO(existingUser, updatedUserDTO));
+        User updatedUser = userMapper.updateUserFromAdminDTO(existingUser, updatedUserDTO);
+
+        return userRepository.save(updatedUser);
     }
 
     @Override
     @Transactional
     public User assignRole(UUID userId, UUID roleId) {
 
-        User user = this.findById(userId).orElseThrow(
-                () -> new UserIdNotFoundException(
-                        String.format(MessageConstants.USER_ID_NOT_FOUND, userId)));
-
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserIdNotFoundException(userId));
         Role role = roleService.findById(roleId).orElseThrow(
-                () -> new RoleIdNotFoundException(String.format(MessageConstants.ROLE_ID_NOT_FOUND, roleId)));
+                () -> new RoleIdNotFoundException(roleId));
 
         user.getRoles().add(role);
+
         return userRepository.save(user);
 
     }
@@ -137,14 +143,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User removeRole(UUID userId, UUID roleId) {
 
-        User user = this.findById(userId).orElseThrow(
-                () -> new UserIdNotFoundException(
-                        String.format(MessageConstants.USER_ID_NOT_FOUND, userId)));
-
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserIdNotFoundException(userId));
         Role role = roleService.findById(roleId).orElseThrow(
-                () -> new RoleIdNotFoundException(String.format(MessageConstants.ROLE_ID_NOT_FOUND, roleId)));
+                () -> new RoleIdNotFoundException(roleId));
 
         user.getRoles().remove(role);
+
         return userRepository.save(user);
     }
 

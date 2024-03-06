@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.AdminUserDTO;
+import com.example.nms.entity.User;
 import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.service.user.UserService;
@@ -32,54 +32,57 @@ public class AdminUserController {
 
     @GetMapping
     public ResponseEntity<List<AdminUserDTO>> findAll(
-            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "10") int size,
-            @RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
-            @RequestParam(name = "sort", required = false, defaultValue = "uuid") String sortBy) {
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "direction", defaultValue = "asc") String direction,
+            @RequestParam(name = "sortBy", defaultValue = "uuid") String sortBy) {
 
-        return ResponseEntity.ok(
-                userMapper.toAdminUserDTO(
-                        userService.listUsers(page, size, direction, sortBy).getContent()));
+        List<User> users = userService.listUsers(page, size, direction, sortBy).getContent();
+
+        return ResponseEntity.ok(userMapper.toAdminUserDTO(users));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AdminUserDTO> findByUUID(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(
-                userMapper.toAdminUserDTO(
-                        userService.findById(id)
-                                .orElseThrow(() -> new UserIdNotFoundException(
-                                        String.format(MessageConstants.USER_ID_NOT_FOUND, id)))));
+
+        User user = userService.findById(id).orElseThrow(() -> new UserIdNotFoundException(id));
+
+        return ResponseEntity.ok(userMapper.toAdminUserDTO(user));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<AdminUserDTO> updateUser(@PathVariable("id") UUID id,
             @RequestBody AdminUserDTO adminUserDTO) {
-        return ResponseEntity.ok(
-                userMapper.toAdminUserDTO(
-                        userService.updateUserFromAdminDTO(id, adminUserDTO)));
+
+        User updatedUser = userService.updateUserFromAdminDTO(id, adminUserDTO);
+
+        return ResponseEntity.ok(userMapper.toAdminUserDTO(updatedUser));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") UUID id) {
-        if (userService.delete(id))
-            return ResponseEntity.noContent().build();
-        throw new UserIdNotFoundException(String.format(MessageConstants.USER_ID_NOT_FOUND, id));
+
+        userService.deleteById(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/roles/{roleId}")
     public ResponseEntity<AdminUserDTO> assignRole(@PathVariable("id") UUID userId,
             @PathVariable("roleId") UUID roleId) {
-        return ResponseEntity.ok(
-                userMapper.toAdminUserDTO(
-                        userService.assignRole(userId, roleId)));
+
+        User user = userService.assignRole(userId, roleId);
+
+        return ResponseEntity.ok(userMapper.toAdminUserDTO(user));
     }
 
     @DeleteMapping("/{id}/roles/{roleId}")
     public ResponseEntity<AdminUserDTO> removeRole(@PathVariable("id") UUID userId,
             @PathVariable("roleId") UUID roleId) {
-        return ResponseEntity.ok(
-                userMapper.toAdminUserDTO(
-                        userService.removeRole(userId, roleId)));
+
+        User user = userService.removeRole(userId, roleId);
+
+        return ResponseEntity.ok(userMapper.toAdminUserDTO(user));
     }
 
 }

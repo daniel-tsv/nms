@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.nms.dto.AdminUserDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.User;
+import com.example.nms.repository.NoteRepository;
 import com.example.nms.service.note.NoteService;
 
 @Mapper(componentModel = "spring", uses = NoteService.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -19,7 +20,7 @@ public abstract class UserMapper {
 
     @SuppressWarnings("java:S6813")
     @Autowired
-    private NoteService noteService;
+    private NoteRepository noteRepository;
 
     public abstract User toEntity(UserDTO userDTO);
 
@@ -39,12 +40,12 @@ public abstract class UserMapper {
 
     @AfterMapping
     protected void setNumberOfNotes(User user, @MappingTarget UserDTO userDTO) {
-        userDTO.setNumberOfNotes(noteService.getUserNotesCount(user));
+        userDTO.setNumberOfNotes(noteRepository.countByUser(user));
     }
 
     @AfterMapping
-    protected void setNumberOfNotesForAdmin(User user, @MappingTarget AdminUserDTO adminUserDTO) {
-        adminUserDTO.setNumberOfNotes(noteService.getUserNotesCount(user));
+    protected void setNumberOfNotesForAdmin(User user, @MappingTarget AdminUserDTO userDTO) {
+        userDTO.setNumberOfNotes(noteRepository.countByUser(user));
     }
 
     public User updateUserFromDTO(User existingUser, UserDTO updatedUserDTO) {

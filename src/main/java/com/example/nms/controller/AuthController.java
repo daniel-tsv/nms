@@ -1,8 +1,6 @@
 package com.example.nms.controller;
 
-import java.util.stream.Collectors;
-
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +11,6 @@ import com.example.nms.dto.AuthResponseDTO;
 import com.example.nms.dto.LoginDTO;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.service.auth.AuthService;
-import com.example.nms.validator.UserDTOValidator;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,29 +21,17 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserDTOValidator userDTOValidator;
 
     @PostMapping("/login")
-    public AuthResponseDTO loginUser(@RequestBody @Valid LoginDTO loginDTO, BindingResult br) {
+    public ResponseEntity<AuthResponseDTO> loginUser(@Valid @RequestBody LoginDTO loginDTO, BindingResult br) {
 
-        if (br.hasErrors())
-            throw new BadCredentialsException(
-                    br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
-                            .collect(Collectors.joining("; ")));
-
-        return authService.loginUser(loginDTO);
+        return ResponseEntity.ok(authService.loginUser(loginDTO, br));
     }
 
     @PostMapping("/register")
-    public AuthResponseDTO registerUser(@RequestBody @Valid RegisterDTO registerDTO, BindingResult br) {
+    public ResponseEntity<AuthResponseDTO> registerUser(@RequestBody @Valid RegisterDTO registerDTO, BindingResult br) {
 
-        userDTOValidator.validate(registerDTO, br);
-        if (br.hasErrors())
-            throw new BadCredentialsException(
-                    br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
-                            .collect(Collectors.joining("; ")));
-
-        return authService.registerUser(registerDTO);
+        return ResponseEntity.ok(authService.registerUser(registerDTO, br));
     }
 
 }

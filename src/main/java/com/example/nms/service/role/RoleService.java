@@ -16,7 +16,7 @@ public interface RoleService {
 
     List<Role> findAll();
 
-    Optional<Role> updateById(UUID id, Role role);
+    Role updateById(UUID id, Role role);
 
-    boolean delete(UUID id);
+    void delete(UUID id);
 }

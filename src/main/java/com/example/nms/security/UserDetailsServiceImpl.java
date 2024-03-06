@@ -28,7 +28,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     public UserDetails loadUserById(UUID uuid) throws UserIdNotFoundException {
         return new UserDetailsImpl(userService.findById(uuid)
-                .orElseThrow(
-                        () -> new UserIdNotFoundException(String.format(MessageConstants.USER_ID_NOT_FOUND, uuid))));
+                .orElseThrow(() -> new UserIdNotFoundException(uuid)));
     }
 }

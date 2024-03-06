@@ -1,28 +1,34 @@
 package com.example.nms.service.auth;
 
+import java.util.Collections;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Errors;
 
 import com.example.nms.constants.MessageConstants;
+import com.example.nms.constants.RoleConstants;
 import com.example.nms.dto.AuthResponseDTO;
 import com.example.nms.dto.LoginDTO;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.Role;
 import com.example.nms.entity.User;
+import com.example.nms.exception.auth.AuthValidationException;
 import com.example.nms.exception.role.RoleNameNotFoundException;
+import com.example.nms.exception.user.UserNameNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.security.jwt.JWTUtil;
 import com.example.nms.service.role.RoleService;
 import com.example.nms.service.user.UserService;
+import com.example.nms.validator.UserDTOValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,9 +43,13 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtProvider;
+    private final UserDTOValidator userDTOValidator;
 
     @Override
-    public AuthResponseDTO loginUser(LoginDTO loginDTO) {
+    public AuthResponseDTO loginUser(LoginDTO loginDTO, Errors errors) {
+
+        if (errors.hasErrors())
+            throw new AuthValidationException(errors);
 
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -47,8 +57,7 @@ public class AuthServiceImpl implements AuthService {
 
             String token = jwtProvider.generateJWT(auth);
             User user = userService.findByUsername(loginDTO.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException(
-                            String.format(MessageConstants.USER_USERNAME_NOT_FOUND, loginDTO.getUsername())));
+                    .orElseThrow(() -> new UserNameNotFoundException(loginDTO.getUsername()));
             UserDTO userDTO = userMapper.toDTO(user);
 
             return new AuthResponseDTO(userDTO, token);
@@ -64,18 +73,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponseDTO registerUser(RegisterDTO registerDTO) {
+    public AuthResponseDTO registerUser(RegisterDTO registerDTO, Errors errors) {
 
-        String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
-        Role userRole = roleService.findByName("ROLE_USER")
-                .orElseThrow(() -> new RoleNameNotFoundException(
-                        String.format(MessageConstants.ROLE_NOT_FOUND, "ROLE_USER")));
+        userDTOValidator.validate(registerDTO, errors);
+        if (errors.hasErrors())
+            throw new AuthValidationException(errors);
 
-        User user = new User(registerDTO.getUsername(), encodedPassword, registerDTO.getEmail());
-        user.getRoles().add(userRole);
-        userService.save(user);
+        Role userRole = roleService.findByName(RoleConstants.ROLE_USER)
+                .orElseThrow(() -> new RoleNameNotFoundException(RoleConstants.ROLE_USER));
 
-        return loginUser(new LoginDTO(registerDTO.getUsername(), registerDTO.getPassword()));
+        User user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()),
+                registerDTO.getEmail(), Collections.singleton(userRole));
+        userService.createUser(user);
+
+        return loginUser(new LoginDTO(registerDTO.getUsername(), registerDTO.getPassword()), errors);
     }
 
 }

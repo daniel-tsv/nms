@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 public final class MessageConstants {
 
     // User
-    public static final String USER_NOT_FOUND = "User was not found";
     public static final String USER_ID_NOT_FOUND = "User with id %s was not found";
     public static final String USER_USERNAME_NOT_FOUND = "User with username %s was not found";
-    public static final String USER_NOT_VALID = "User is not valid: ";
 
     // Username
     public static final String USERNAME_EMPTY = "Username cannot be empty";
@@ -50,8 +48,5 @@ public final class MessageConstants {
     public static final String TOKEN_EMPTY = "JWT Token cannot be empty";
     public static final String TOKEN_UUID_CLAIM = "UUID claim is missing";
     public static final String TOKEN_INVALID = "Invalid JWT Token: %s";
-
-    // Testing
-    public static final String EXPECTED_EXCEPTION_WAS_NOT_THROWN = "Expected %s was not thrown";
 
 }

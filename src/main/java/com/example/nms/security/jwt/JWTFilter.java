@@ -49,6 +49,7 @@ public class JWTFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
         } catch (JWTVerificationException e) {
+            // todo return proper response
             response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                     String.format(MessageConstants.TOKEN_INVALID, e.getMessage()));
         }

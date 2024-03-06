@@ -24,6 +24,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EqualsAndHashCode(of = "uuid")
 @ToString(exclude = { "notes", "password" })
+@AllArgsConstructor
 @NoArgsConstructor
 public class User {
 
@@ -81,10 +83,11 @@ public class User {
     @Column(nullable = false)
     Boolean isEnabled = Boolean.TRUE;
 
-    public User(String username, String password, String email) {
+    public User(String username, String password, String email, Set<Role> roles) {
         this.username = username;
         this.password = password;
         this.email = email != null ? email.toLowerCase() : email;
+        this.roles = roles;
     }
 
     public void setEmail(String email) {

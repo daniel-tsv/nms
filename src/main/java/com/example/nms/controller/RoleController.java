@@ -2,7 +2,6 @@ package com.example.nms.controller;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -15,10 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.nms.constants.MessageConstants;
 import com.example.nms.entity.Role;
-import com.example.nms.exception.role.InvalidRoleException;
 import com.example.nms.exception.role.RoleIdNotFoundException;
+import com.example.nms.exception.role.RoleValidationException;
 import com.example.nms.service.role.RoleService;
 import com.example.nms.validator.RoleValidator;
 
@@ -38,19 +36,16 @@ public class RoleController {
 
         roleValidator.validate(role, br);
         if (br.hasErrors())
-            throw new InvalidRoleException(
-                    br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
-                            .collect(Collectors.joining("; ")));
+            throw new RoleValidationException(br);
 
         return ResponseEntity.ok(roleService.create(role));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Role> getRole(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(
-                roleService.findById(id).orElseThrow(
-                        () -> new RoleIdNotFoundException(
-                                String.format(MessageConstants.ROLE_ID_NOT_FOUND, id))));
+        Role role = roleService.findById(id).orElseThrow(
+                () -> new RoleIdNotFoundException(id));
+        return ResponseEntity.ok(role);
     }
 
     @GetMapping
@@ -58,6 +53,7 @@ public class RoleController {
         return ResponseEntity.ok(roleService.findAll());
     }
 
+    // todo: move logic to service layer
     @PatchMapping("/{id}")
     public ResponseEntity<Role> updateRole(@PathVariable("id") UUID id, @RequestBody @Valid Role role,
             BindingResult br) {
@@ -65,20 +61,14 @@ public class RoleController {
         role.setUuid(id);
         roleValidator.validate(role, br);
         if (br.hasErrors())
-            throw new InvalidRoleException(
-                    br.getFieldErrors().stream().map(err -> err.getField() + " - " + err.getDefaultMessage())
-                            .collect(Collectors.joining("; ")));
+            throw new RoleValidationException(br);
 
-        return ResponseEntity.of(roleService.updateById(id, role));
+        return ResponseEntity.ok(roleService.updateById(id, role));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable("id") UUID id) {
-
-        if (roleService.delete(id))
-            return ResponseEntity.noContent().build();
-
-        throw new RoleIdNotFoundException(
-                String.format(MessageConstants.ROLE_NOT_FOUND, id));
+        roleService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

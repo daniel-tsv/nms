@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.nms.entity.Role;
+import com.example.nms.exception.role.RoleIdNotFoundException;
 import com.example.nms.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -42,20 +43,19 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
-    public Optional<Role> updateById(UUID id, Role role) {
-        return roleRepository.findById(id).map(existingRole -> {
-            existingRole.setName(role.getName());
-            return roleRepository.save(existingRole);
-        });
+    public Role updateById(UUID id, Role role) {
+        Role existingRole = roleRepository.findById(id).orElseThrow(() -> new RoleIdNotFoundException(id));
+        existingRole.setName(role.getName());
+
+        return roleRepository.save(existingRole);
     }
 
     @Override
     @Transactional
-    public boolean delete(UUID id) {
-        if (roleRepository.existsById(id)) {
-            roleRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public void delete(UUID id) {
+        if (!roleRepository.existsById(id))
+            throw new RoleIdNotFoundException(id);
+
+        roleRepository.deleteById(id);
     }
 }
