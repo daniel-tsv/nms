@@ -43,21 +43,24 @@ public class RoleController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Role> getRole(@PathVariable("id") UUID id) {
+
         Role role = roleService.findById(id).orElseThrow(
                 () -> new RoleIdNotFoundException(id));
+
         return ResponseEntity.ok(role);
     }
 
     @GetMapping
     public ResponseEntity<List<Role>> getAllRoles() {
+
         return ResponseEntity.ok(roleService.findAll());
     }
 
-    // todo: move logic to service layer
     @PatchMapping("/{id}")
     public ResponseEntity<Role> updateRole(@PathVariable("id") UUID id, @RequestBody @Valid Role role,
             BindingResult br) {
 
+        // set role UUID, for validator to work properly
         role.setUuid(id);
         roleValidator.validate(role, br);
         if (br.hasErrors())
@@ -68,7 +71,9 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable("id") UUID id) {
+
         roleService.delete(id);
+
         return ResponseEntity.noContent().build();
     }
 }

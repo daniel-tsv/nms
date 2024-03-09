@@ -1,6 +1,7 @@
 package com.example.nms;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -35,16 +36,23 @@ public class NMSApp {
     CommandLineRunner run(RoleService roleService, UserService userService, PasswordEncoder passwordEncoder) {
         return args -> {
 
-            if (roleService.findByName(RoleConstants.ROLE_USER).isEmpty())
+            Optional<Role> userRole = roleService.findByName(RoleConstants.ROLE_USER);
+            if (userRole.isEmpty())
                 roleService.create(new Role(RoleConstants.ROLE_USER));
 
-            if (roleService.findByName(RoleConstants.ROLE_ADMIN).isEmpty())
-                roleService.create(new Role(RoleConstants.ROLE_USER));
+            Optional<Role> adminRole = roleService.findByName(RoleConstants.ROLE_ADMIN);
+            if (adminRole.isEmpty()) {
+                roleService.create(new Role(RoleConstants.ROLE_ADMIN));
+                adminRole = roleService.findByName(RoleConstants.ROLE_ADMIN);
+            }
 
-            if (userService.findByUsername(adminUsername).isEmpty()) {
-                User adminUser = new User(adminUsername, passwordEncoder.encode(adminPassword), adminEmail,
-                        Collections.singleton(new Role(RoleConstants.ROLE_ADMIN)));
-                userService.createUser(adminUser);
+            Optional<User> adminUser = userService.findByUsername(adminUsername);
+            if (adminUser.isEmpty() && adminRole.isPresent()) {
+
+                User admin = new User(adminUsername, passwordEncoder.encode(adminPassword), adminEmail,
+                        Collections.singleton(adminRole.get()));
+
+                userService.create(admin);
             }
         };
     }

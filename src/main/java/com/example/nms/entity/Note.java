@@ -59,8 +59,10 @@ public class Note {
     Instant updatedAt;
 
     public Note(String title, User user, String contents) {
+
         this.title = title;
         this.user = user;
+
         if (contents != null && !contents.isBlank())
             this.contents = contents;
     }

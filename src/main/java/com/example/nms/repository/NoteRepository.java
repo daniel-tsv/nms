@@ -1,6 +1,5 @@
 package com.example.nms.repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,8 +15,6 @@ import com.example.nms.entity.User;
 public interface NoteRepository extends JpaRepository<Note, UUID> {
 
     Optional<Note> findByTitleAndUser(String title, User user);
-
-    List<Note> findByUser(User user);
 
     int countByUser(User user);
 

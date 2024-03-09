@@ -1,7 +1,6 @@
 package com.example.nms.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -13,13 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.nms.dto.AuthResponseDTO;
 import com.example.nms.dto.LoginDTO;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
+import com.example.nms.exception.auth.AuthValidationException;
 import com.example.nms.service.auth.AuthService;
 import com.example.nms.validator.UserDTOValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,10 +60,9 @@ class AuthControllerTest {
     void loginUserShouldReturnAuthResponseDTO() throws Exception {
 
         LoginDTO loginDTO = new LoginDTO(username, password);
-        UserDTO userDTO = new UserDTO(username, password);
-        AuthResponseDTO authResponseDTO = new AuthResponseDTO(userDTO, token);
+        AuthResponseDTO authResponseDTO = new AuthResponseDTO(new UserDTO(username, password), token);
 
-        when(authService.loginUser(eq(loginDTO), any())).thenReturn(authResponseDTO);
+        when(authService.loginUser(loginDTO)).thenReturn(authResponseDTO);
 
         mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -72,35 +70,28 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(authResponseDTO)));
 
-        verify(authService).loginUser(eq(loginDTO), any());
+        verify(authService).loginUser(loginDTO);
     }
 
     @Test
-    void loginUserShouldThrowBadCredentialsWhenLoginDTOFieldsHaveErrors() throws Exception {
+    void loginUserShouldThrowAuthValidationWhenLoginDTOHasErrors() throws Exception {
 
         LoginDTO badLoginDTO = new LoginDTO("s", "");
-
-        doThrow(new BadCredentialsException("field errors"))
-                .when(authService).loginUser(eq(badLoginDTO), any());
 
         mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(badLoginDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof BadCredentialsException));
-
-        verify(authService).loginUser(eq(badLoginDTO), any());
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof AuthValidationException));
     }
 
     @Test
     void registerUserShouldReturnAuthResponseDTO() throws Exception {
 
         RegisterDTO registerDTO = new RegisterDTO(username, password, email);
-        UserDTO userDTO = new UserDTO(username, email);
-        AuthResponseDTO authResponseDTO = new AuthResponseDTO(userDTO, token);
+        AuthResponseDTO authResponseDTO = new AuthResponseDTO(new UserDTO(username, email), token);
 
-        when(authService.registerUser(eq(registerDTO), any())).thenReturn(authResponseDTO);
+        when(authService.registerUser(registerDTO)).thenReturn(authResponseDTO);
 
         mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -108,23 +99,18 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(authResponseDTO)));
 
-        verify(authService).registerUser(eq(registerDTO), any());
+        verify(authService).registerUser(registerDTO);
     }
 
     @Test
-    void registerUserShouldThrowBadCredentialsWhenRegisterDTOFieldsHaveErrors() throws Exception {
+    void registerUserShouldThrowAuthValidationWhenRegisterDTOHasErrors() throws Exception {
 
         RegisterDTO badRegisterDTO = new RegisterDTO("u", "", "email");
-
-        doThrow(new BadCredentialsException("field errors"))
-                .when(authService).registerUser(eq(badRegisterDTO), any());
 
         mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(badRegisterDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BadCredentialsException));
-
-        verify(authService).registerUser(eq(badRegisterDTO), any());
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof AuthValidationException));
     }
 }

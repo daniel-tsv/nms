@@ -20,10 +20,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.dto.NoteSummaryDTO;
 import com.example.nms.entity.Note;
+import com.example.nms.entity.User;
 import com.example.nms.exception.note.NoteNotFoundException;
+import com.example.nms.exception.note.NoteValidationException;
 import com.example.nms.mapper.NoteMapper;
 import com.example.nms.service.note.NoteService;
 import com.example.nms.service.user.UserService;
+import com.example.nms.validator.NoteDTOValidator;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class NoteController {
     private final NoteService noteService;
     private final NoteMapper noteMapper;
     private final UserService userService;
+    private final NoteDTOValidator noteDTOValidator;
 
     @GetMapping("/title/{title}")
     public ResponseEntity<NoteDetailDTO> findByTitle(@PathVariable("title") String title) {
@@ -53,8 +57,8 @@ public class NoteController {
             @RequestParam(name = "direction", defaultValue = "asc") String direction,
             @RequestParam(name = "sortBy", defaultValue = "updatedAt") String sortBy) {
 
-        PageRequest request = noteService.createPageRequestOf(page, size, direction, sortBy);
-        List<Note> notes = noteService.findUserNotes(request, userService.getAuthenticatedUser()).toList();
+        PageRequest request = noteService.createPageRequest(page, size, direction, sortBy);
+        List<Note> notes = noteService.findAll(request, userService.getAuthenticatedUser()).toList();
 
         return ResponseEntity.ok(noteMapper.toSummaryDTO(notes));
     }
@@ -68,8 +72,8 @@ public class NoteController {
             @RequestParam(name = "direction", defaultValue = "asc") String direction,
             @RequestParam(name = "sortBy", defaultValue = "updatedAt") String sortBy) {
 
-        PageRequest request = noteService.createPageRequestOf(page, size, direction, sortBy);
-        List<Note> notes = noteService.searchNotes(term, searchInContents, request, userService.getAuthenticatedUser())
+        PageRequest request = noteService.createPageRequest(page, size, direction, sortBy);
+        List<Note> notes = noteService.search(term, searchInContents, request, userService.getAuthenticatedUser())
                 .toList();
 
         return ResponseEntity.ok(noteMapper.toSummaryDTO(notes));
@@ -78,7 +82,11 @@ public class NoteController {
     @PostMapping
     public ResponseEntity<Object> createNote(@RequestBody @Valid NoteDetailDTO noteDTO, BindingResult br) {
 
-        noteService.createNote(noteDTO, userService.getAuthenticatedUser(), br);
+        noteDTOValidator.validate(noteDTO, br);
+        if (br.hasErrors())
+            throw new NoteValidationException(br);
+
+        noteService.create(noteDTO, userService.getAuthenticatedUser());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/title/{title}")
                 .buildAndExpand(noteDTO.getTitle()).toUri();
@@ -87,17 +95,29 @@ public class NoteController {
     }
 
     @PatchMapping("/title/{title}")
-    public ResponseEntity<NoteDetailDTO> updateNote(@PathVariable("title") String title,
+    public ResponseEntity<NoteDetailDTO> updateNote(@PathVariable("title") String titleOfNoteToBeUpdated,
             @RequestBody @Valid NoteDetailDTO updatedNoteDTO, BindingResult br) {
 
-        Note updatedNote = noteService.updateNoteDetails(title, updatedNoteDTO, br, userService.getAuthenticatedUser());
+        User user = userService.getAuthenticatedUser();
+        Note existingNote = noteService.findByTitleAndUser(titleOfNoteToBeUpdated, user)
+                .orElseThrow(() -> new NoteNotFoundException(titleOfNoteToBeUpdated));
+
+        // set updatedNoteDTO UUID, for validator to work properly
+        updatedNoteDTO.setUuid(existingNote.getUuid());
+        noteDTOValidator.validate(updatedNoteDTO, br);
+        if (br.hasErrors())
+            throw new NoteValidationException(br);
+
+        Note updatedNote = noteService.updateNoteDetails(titleOfNoteToBeUpdated, updatedNoteDTO, user);
 
         return ResponseEntity.ok(noteMapper.toDetailDTO(updatedNote));
     }
 
     @DeleteMapping("/title/{title}")
     public ResponseEntity<Void> deleteNote(@PathVariable("title") String title) {
-        noteService.deleteByTitleAndOwner(title, userService.getAuthenticatedUser());
+
+        noteService.deleteByTitleAndUser(title, userService.getAuthenticatedUser());
+
         return ResponseEntity.noContent().build();
     }
 

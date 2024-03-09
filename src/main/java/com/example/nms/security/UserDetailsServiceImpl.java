@@ -21,12 +21,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         return new UserDetailsImpl(userService.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(MessageConstants.USER_USERNAME_NOT_FOUND, username))));
     }
 
     public UserDetails loadUserById(UUID uuid) throws UserIdNotFoundException {
+
         return new UserDetailsImpl(userService.findById(uuid)
                 .orElseThrow(() -> new UserIdNotFoundException(uuid)));
     }

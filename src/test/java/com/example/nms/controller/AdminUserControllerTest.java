@@ -63,6 +63,7 @@ class AdminUserControllerTest {
 
     @BeforeEach
     void setUp() {
+
         exampleUserDTO = createExampleUserDTO();
 
         exampleUsers = new ArrayList<>();
@@ -71,7 +72,6 @@ class AdminUserControllerTest {
 
         nonExistentRoleId = UUID.randomUUID();
         nonExistentUserId = UUID.randomUUID();
-
     }
 
     private AdminUserDTO createExampleUserDTO() {
@@ -157,7 +157,7 @@ class AdminUserControllerTest {
         UUID uuid = exampleUserDTO.getUuid();
         User user = new User();
 
-        when(userService.updateUserFromAdminDTO(uuid, exampleUserDTO)).thenReturn(user);
+        when(userService.updateFromAdminDTO(uuid, exampleUserDTO)).thenReturn(user);
         when(userMapper.toAdminUserDTO(user)).thenReturn(exampleUserDTO);
 
         String expectedContent = mapper.writeValueAsString(exampleUserDTO);
@@ -168,7 +168,7 @@ class AdminUserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedContent));
 
-        verify(userService).updateUserFromAdminDTO(uuid, exampleUserDTO);
+        verify(userService).updateFromAdminDTO(uuid, exampleUserDTO);
     }
 
     @Test
@@ -176,7 +176,7 @@ class AdminUserControllerTest {
     void updateUserShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
 
         doThrow(new UserIdNotFoundException(nonExistentUserId))
-                .when(userService).updateUserFromAdminDTO(nonExistentUserId, exampleUserDTO);
+                .when(userService).updateFromAdminDTO(nonExistentUserId, exampleUserDTO);
 
         mockMvc.perform(patch("/admin/users/{id}", nonExistentUserId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -184,7 +184,7 @@ class AdminUserControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
 
-        verify(userService).updateUserFromAdminDTO(nonExistentUserId, exampleUserDTO);
+        verify(userService).updateFromAdminDTO(nonExistentUserId, exampleUserDTO);
     }
 
     @Test

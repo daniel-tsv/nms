@@ -35,5 +35,4 @@ public class UserDTO {
         this.username = username;
         this.email = email;
     }
-
 }

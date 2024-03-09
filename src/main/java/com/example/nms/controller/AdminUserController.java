@@ -54,7 +54,7 @@ public class AdminUserController {
     public ResponseEntity<AdminUserDTO> updateUser(@PathVariable("id") UUID id,
             @RequestBody AdminUserDTO adminUserDTO) {
 
-        User updatedUser = userService.updateUserFromAdminDTO(id, adminUserDTO);
+        User updatedUser = userService.updateFromAdminDTO(id, adminUserDTO);
 
         return ResponseEntity.ok(userMapper.toAdminUserDTO(updatedUser));
     }

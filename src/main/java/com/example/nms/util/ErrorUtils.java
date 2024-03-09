@@ -15,5 +15,4 @@ public class ErrorUtils {
                 .map(err -> err.getField() + " - " + err.getDefaultMessage())
                 .collect(Collectors.joining(", "));
     }
-
 }

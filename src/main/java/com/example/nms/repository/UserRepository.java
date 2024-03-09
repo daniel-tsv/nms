@@ -10,6 +10,7 @@ import com.example.nms.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
+
     Optional<User> findByUsernameIgnoreCase(String username);
 
     Optional<User> findByEmailIgnoreCase(String email);
@@ -17,5 +18,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByUsernameIgnoreCase(String username);
 
     void deleteByUsernameIgnoreCase(String username);
-
 }

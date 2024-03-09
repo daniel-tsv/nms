@@ -12,5 +12,4 @@ public class TestConfiguration {
     Faker faker() {
         return new Faker();
     }
-
 }

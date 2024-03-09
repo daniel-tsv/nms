@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Errors;
 
 import com.example.nms.constants.MessageConstants;
 import com.example.nms.constants.RoleConstants;
@@ -21,14 +20,12 @@ import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.Role;
 import com.example.nms.entity.User;
-import com.example.nms.exception.auth.AuthValidationException;
 import com.example.nms.exception.role.RoleNameNotFoundException;
 import com.example.nms.exception.user.UserNameNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.security.jwt.JWTUtil;
 import com.example.nms.service.role.RoleService;
 import com.example.nms.service.user.UserService;
-import com.example.nms.validator.UserDTOValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,13 +40,9 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtProvider;
-    private final UserDTOValidator userDTOValidator;
 
     @Override
-    public AuthResponseDTO loginUser(LoginDTO loginDTO, Errors errors) {
-
-        if (errors.hasErrors())
-            throw new AuthValidationException(errors);
+    public AuthResponseDTO loginUser(LoginDTO loginDTO) {
 
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -73,20 +66,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponseDTO registerUser(RegisterDTO registerDTO, Errors errors) {
-
-        userDTOValidator.validate(registerDTO, errors);
-        if (errors.hasErrors())
-            throw new AuthValidationException(errors);
+    public AuthResponseDTO registerUser(RegisterDTO registerDTO) {
 
         Role userRole = roleService.findByName(RoleConstants.ROLE_USER)
                 .orElseThrow(() -> new RoleNameNotFoundException(RoleConstants.ROLE_USER));
 
         User user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()),
                 registerDTO.getEmail(), Collections.singleton(userRole));
-        userService.createUser(user);
+        userService.create(user);
 
-        return loginUser(new LoginDTO(registerDTO.getUsername(), registerDTO.getPassword()), errors);
+        return loginUser(new LoginDTO(registerDTO.getUsername(), registerDTO.getPassword()));
     }
 
 }

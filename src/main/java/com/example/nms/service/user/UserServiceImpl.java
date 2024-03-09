@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Errors;
 
 import com.example.nms.dto.AdminUserDTO;
 import com.example.nms.dto.UserDTO;
@@ -20,12 +19,10 @@ import com.example.nms.entity.User;
 import com.example.nms.exception.role.RoleIdNotFoundException;
 import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.exception.user.UserNameNotFoundException;
-import com.example.nms.exception.user.UserValidationException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.repository.UserRepository;
 import com.example.nms.security.UserDetailsImpl;
 import com.example.nms.service.role.RoleService;
-import com.example.nms.validator.UserDTOValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,20 +34,22 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoleService roleService;
-    private final UserDTOValidator userDTOValidator;
 
     @Override
     public Optional<User> findById(UUID id) {
+
         return userRepository.findById(id);
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
+
         return userRepository.findByUsernameIgnoreCase(username);
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
+
         return userRepository.findByEmailIgnoreCase(email);
     }
 
@@ -72,13 +71,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(User user) {
+    public User create(User user) {
+
         return userRepository.save(user);
     }
 
     @Override
     @Transactional
     public void deleteById(UUID id) {
+
         if (!userRepository.existsById(id))
             throw new UserIdNotFoundException(id);
 
@@ -88,21 +89,16 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteByUsername(String username) {
+
         if (!userRepository.existsByUsernameIgnoreCase(username))
             throw new UserNameNotFoundException(username);
 
         userRepository.deleteByUsernameIgnoreCase(username);
     }
 
-    // TODO test
     @Override
     @Transactional
-    public User updateUserFromUserDTO(UUID existingUserId, UserDTO updatedUserDTO, Errors errors) {
-
-        updatedUserDTO.setUuid(existingUserId);
-        userDTOValidator.validate(updatedUserDTO, errors);
-        if (errors.hasErrors())
-            throw new UserValidationException(errors);
+    public User updateFromUserDTO(UUID existingUserId, UserDTO updatedUserDTO) {
 
         User existingUser = userRepository.findById(existingUserId)
                 .orElseThrow(() -> new UserIdNotFoundException(existingUserId));
@@ -114,7 +110,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateUserFromAdminDTO(UUID existingUserId, AdminUserDTO updatedUserDTO) {
+    public User updateFromAdminDTO(UUID existingUserId, AdminUserDTO updatedUserDTO) {
 
         User existingUser = userRepository.findById(existingUserId)
                 .orElseThrow(() -> new UserIdNotFoundException(existingUserId));
@@ -155,8 +151,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getAuthenticatedUser() {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+
         return userDetails.getUser();
     }
 }

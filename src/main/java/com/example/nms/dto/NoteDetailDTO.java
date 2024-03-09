@@ -35,4 +35,8 @@ public class NoteDetailDTO {
     Instant createdAt;
 
     Instant updatedAt;
+
+    public NoteDetailDTO(String title) {
+        this.title = title;
+    }
 }

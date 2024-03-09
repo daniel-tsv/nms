@@ -8,7 +8,7 @@ import org.springframework.validation.Validator;
 import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.RegisterDTO;
 import com.example.nms.dto.UserDTO;
-import com.example.nms.repository.UserRepository;
+import com.example.nms.service.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserDTOValidator implements Validator {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public boolean supports(@NonNull Class<?> clazz) {
@@ -35,13 +35,13 @@ public class UserDTOValidator implements Validator {
             userDTO = new UserDTO(register.getUsername(), register.getEmail());
         }
 
-        userRepository.findByUsernameIgnoreCase(userDTO.getUsername()).ifPresent(u -> {
+        userService.findByUsername(userDTO.getUsername()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
                 errors.rejectValue("username", "user.username.exists",
                         String.format(MessageConstants.USERNAME_ALREADY_TAKEN, u.getUsername()));
         });
 
-        userRepository.findByEmailIgnoreCase(userDTO.getEmail()).ifPresent(u -> {
+        userService.findByUsername(userDTO.getEmail()).ifPresent(u -> {
             if (!u.getUuid().equals(userDTO.getUuid()))
                 errors.rejectValue("email", "user.email.exists",
                         String.format(MessageConstants.EMAIL_ALREADY_TAKEN, u.getEmail()));

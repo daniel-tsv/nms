@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.nms.dto.ErrorResponseDTO;
+import com.example.nms.exception.auth.AuthValidationException;
 import com.example.nms.exception.note.NoteNotFoundException;
 import com.example.nms.exception.note.NoteValidationException;
 import com.example.nms.exception.role.RoleIdNotFoundException;
@@ -35,8 +37,10 @@ public class ApiGlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    @ExceptionHandler({ BadCredentialsException.class, UserValidationException.class, NoteValidationException.class,
-            RoleValidationException.class })
+    // test jwt verification exception
+    @ExceptionHandler({ BadCredentialsException.class, AuthValidationException.class, UserValidationException.class,
+            NoteValidationException.class,
+            RoleValidationException.class, JWTVerificationException.class })
     public ResponseEntity<ErrorResponseDTO> badRequestHandler(Exception ex, HttpServletRequest request) {
 
         ErrorResponseDTO errorResponse = ErrorResponseDTO.create("Invalid data", ex, request, HttpStatus.BAD_REQUEST);

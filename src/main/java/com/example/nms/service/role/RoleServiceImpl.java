@@ -22,28 +22,33 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Optional<Role> findByName(String name) {
+
         return roleRepository.findByName(name);
     }
 
     @Override
     @Transactional
-    public Role create(Role userRole) {
-        return roleRepository.save(userRole);
+    public Role create(Role role) {
+
+        return roleRepository.save(role);
     }
 
     @Override
     public Optional<Role> findById(UUID id) {
+
         return roleRepository.findById(id);
     }
 
     @Override
     public List<Role> findAll() {
+
         return roleRepository.findAll();
     }
 
     @Override
     @Transactional
     public Role updateById(UUID id, Role role) {
+
         Role existingRole = roleRepository.findById(id).orElseThrow(() -> new RoleIdNotFoundException(id));
         existingRole.setName(role.getName());
 
@@ -53,6 +58,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public void delete(UUID id) {
+
         if (!roleRepository.existsById(id))
             throw new RoleIdNotFoundException(id);
 

@@ -71,6 +71,7 @@ public class JWTUtil {
     }
 
     public String extractUserId(DecodedJWT jwt) {
+
         return jwt.getClaim(USER_UUID).asString();
     }
 }

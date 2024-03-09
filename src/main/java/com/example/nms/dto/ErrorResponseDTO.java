@@ -16,14 +16,20 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ErrorResponseDTO {
+
     String error;
+
     String message;
+
     String path;
+
     HttpStatus status;
+
     Instant timestamp;
 
     public static ErrorResponseDTO create(String error, Exception ex, HttpServletRequest request,
             HttpStatus status) {
+
         return new ErrorResponseDTO(error, ex.getMessage(), request.getRequestURI(), status, Instant.now());
     }
 }

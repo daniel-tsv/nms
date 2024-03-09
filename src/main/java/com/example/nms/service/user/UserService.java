@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.validation.Errors;
 
 import com.example.nms.dto.AdminUserDTO;
 import com.example.nms.dto.UserDTO;
@@ -20,20 +19,19 @@ public interface UserService {
 
     Page<User> listUsers(int page, int size, String direction, String sortBy);
 
-    User createUser(User user);
+    User create(User user);
 
     void deleteById(UUID id);
 
     void deleteByUsername(String username);
 
-    User updateUserFromUserDTO(UUID existingUserId, UserDTO updatedUserDTO, Errors errors);
+    User updateFromUserDTO(UUID existingUserId, UserDTO updatedUserDTO);
 
-    User updateUserFromAdminDTO(UUID existingUserId, AdminUserDTO updatedAdminUserDTO);
+    User updateFromAdminDTO(UUID existingUserId, AdminUserDTO updatedAdminUserDTO);
 
     User assignRole(UUID userId, UUID roleId);
 
     User removeRole(UUID userId, UUID roleId);
 
     User getAuthenticatedUser();
-
 }

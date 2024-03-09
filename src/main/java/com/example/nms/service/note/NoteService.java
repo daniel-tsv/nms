@@ -6,26 +6,28 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.Errors;
 
 import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
 
 public interface NoteService {
+
     Optional<Note> findById(UUID id);
 
     Optional<Note> findByTitleAndUser(String title, User owner);
 
-    Page<Note> findUserNotes(Pageable pageable, User owner);
+    Page<Note> findAll(Pageable pageable, User owner);
 
-    Page<Note> searchNotes(String term, boolean searchInContents, Pageable pageable, User user);
+    Page<Note> search(String term, boolean searchInContents, Pageable pageable, User user);
 
-    Note createNote(NoteDetailDTO noteDTO, User user, Errors errors);
+    Note create(NoteDetailDTO noteDTO, User user);
 
-    Note updateNoteDetails(String title, NoteDetailDTO updatedNoteDTO, Errors errors, User user);
+    Note updateNoteDetails(String title, NoteDetailDTO updatedNoteDTO, User user);
 
-    void deleteByTitleAndOwner(String title, User owner);
+    void deleteByTitleAndUser(String title, User owner);
 
-    PageRequest createPageRequestOf(int page, int size, String direction, String sortBy);
+    PageRequest createPageRequest(int page, int size, String direction, String sortBy);
+
+    int getUserNotesCount(User user);
 }

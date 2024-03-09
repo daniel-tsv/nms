@@ -10,17 +10,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Errors;
 
 import com.example.nms.constants.MessageConstants;
 import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
 import com.example.nms.exception.note.NoteNotFoundException;
-import com.example.nms.exception.note.NoteValidationException;
 import com.example.nms.mapper.NoteMapper;
 import com.example.nms.repository.NoteRepository;
-import com.example.nms.validator.NoteDTOValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,25 +28,27 @@ public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
-    private final NoteDTOValidator noteDTOValidator;
 
     @Override
     public Optional<Note> findById(UUID id) {
+
         return noteRepository.findById(id);
     }
 
     @Override
     public Optional<Note> findByTitleAndUser(String title, User owner) {
+
         return noteRepository.findByTitleAndUser(title, owner);
     }
 
     @Override
-    public Page<Note> findUserNotes(Pageable pageable, User owner) {
+    public Page<Note> findAll(Pageable pageable, User owner) {
+
         return noteRepository.findAllByUser(pageable, owner);
     }
 
     @Override
-    public Page<Note> searchNotes(String term, boolean searchInContents, Pageable pageable, User user) {
+    public Page<Note> search(String term, boolean searchInContents, Pageable pageable, User user) {
 
         if (term == null || term.isBlank())
             throw new IllegalArgumentException(MessageConstants.NOTE_SEARCH_TERM_EMPTY);
@@ -59,14 +58,14 @@ public class NoteServiceImpl implements NoteService {
                 : noteRepository.findByTitleContainingIgnoreCaseAndUser(term, pageable, user);
     }
 
-    // TODO test
+    public int getUserNotesCount(User user) {
+
+        return noteRepository.countByUser(user);
+    }
+
     @Override
     @Transactional
-    public Note createNote(NoteDetailDTO noteDTO, User user, Errors errors) {
-
-        noteDTOValidator.validate(noteDTO, errors);
-        if (errors.hasErrors())
-            throw new NoteValidationException(errors);
+    public Note create(NoteDetailDTO noteDTO, User user) {
 
         Note note = new Note(noteDTO.getTitle(), user, noteDTO.getContents());
         noteRepository.save(note);
@@ -74,18 +73,12 @@ public class NoteServiceImpl implements NoteService {
         return noteRepository.save(note);
     }
 
-    // TODO test
     @Override
     @Transactional
-    public Note updateNoteDetails(String title, NoteDetailDTO updatedNoteDTO, Errors errors, User user) {
+    public Note updateNoteDetails(String title, NoteDetailDTO updatedNoteDTO, User user) {
 
-        Note existingNote = noteRepository.findByTitleAndUser(title, user)
+        Note existingNote = findByTitleAndUser(title, user)
                 .orElseThrow(() -> new NoteNotFoundException(title));
-
-        updatedNoteDTO.setUuid(existingNote.getUuid());
-        noteDTOValidator.validate(updatedNoteDTO, errors);
-        if (errors.hasErrors())
-            throw new NoteValidationException(errors);
 
         if (updatedNoteDTO.getContents() == null || updatedNoteDTO.getContents().isBlank())
             updatedNoteDTO.setContents(existingNote.getContents());
@@ -100,7 +93,8 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     @Transactional
-    public void deleteByTitleAndOwner(String title, User owner) {
+    public void deleteByTitleAndUser(String title, User owner) {
+
         if (!noteRepository.existsByTitleAndUser(title, owner))
             throw new NoteNotFoundException(title);
 
@@ -108,7 +102,8 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public PageRequest createPageRequestOf(int page, int size, String direction, String sortBy) {
+    public PageRequest createPageRequest(int page, int size, String direction, String sortBy) {
+
         page = Math.max(page, 0);
         size = Math.max(size, 1);
         sortBy = Arrays.asList("title", "createdAt", "updatedAt").contains(sortBy) ? sortBy : "updatedAt";

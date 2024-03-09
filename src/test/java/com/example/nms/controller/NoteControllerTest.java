@@ -26,7 +26,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.Errors;
 
 import com.example.nms.constants.RoleConstants;
 import com.example.nms.dto.NoteDetailDTO;
@@ -74,11 +73,11 @@ class NoteControllerTest {
         exampleNote = new Note();
         exampleNoteDetail = createNoteDetail();
 
-        exampleNoteSummaries = IntStream.range(0, 5)
-                .mapToObj(i -> createNoteSummary()).toList();
+        exampleNoteSummaries = IntStream.range(0, 5).mapToObj(i -> createNoteSummary()).toList();
     }
 
     private NoteDetailDTO createNoteDetail() {
+
         return new NoteDetailDTO(UUID.randomUUID(), faker.lorem().word(),
                 faker.lorem().sentence(10),
                 faker.date().past(faker.random().nextInt(15, 30), TimeUnit.DAYS).toInstant(),
@@ -86,6 +85,7 @@ class NoteControllerTest {
     }
 
     private NoteSummaryDTO createNoteSummary() {
+
         return new NoteSummaryDTO(UUID.randomUUID(), faker.lorem().word(),
                 faker.date().past(faker.random().nextInt(15, 30), TimeUnit.DAYS).toInstant(),
                 faker.date().past(faker.random().nextInt(1, 15), TimeUnit.DAYS).toInstant());
@@ -141,8 +141,8 @@ class NoteControllerTest {
         Page<Note> page = new PageImpl<>(Collections.singletonList(exampleNote));
 
         when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
-        when(noteService.createPageRequestOf(pageNumber, pageSize, direction.name(), sortBy)).thenReturn(request);
-        when(noteService.findUserNotes(request, exampleUser)).thenReturn(page);
+        when(noteService.createPageRequest(pageNumber, pageSize, direction.name(), sortBy)).thenReturn(request);
+        when(noteService.findAll(request, exampleUser)).thenReturn(page);
         when(noteMapper.toSummaryDTO(page.toList())).thenReturn(exampleNoteSummaries);
 
         mockMvc.perform(get("/notes")
@@ -154,8 +154,8 @@ class NoteControllerTest {
                 .andExpect(content().json(mapper.writeValueAsString(exampleNoteSummaries)));
 
         verify(userService).getAuthenticatedUser();
-        verify(noteService).createPageRequestOf(pageNumber, pageSize, direction.name(), sortBy);
-        verify(noteService).findUserNotes(request, exampleUser);
+        verify(noteService).createPageRequest(pageNumber, pageSize, direction.name(), sortBy);
+        verify(noteService).findAll(request, exampleUser);
         verify(noteMapper).toSummaryDTO(page.toList());
     }
 
@@ -176,8 +176,8 @@ class NoteControllerTest {
         Page<Note> page = new PageImpl<>(Collections.singletonList(exampleNote));
 
         when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
-        when(noteService.createPageRequestOf(pageNumber, pageSize, direction.name(), sortBy)).thenReturn(request);
-        when(noteService.searchNotes(term, searchInContents, request, exampleUser)).thenReturn(page);
+        when(noteService.createPageRequest(pageNumber, pageSize, direction.name(), sortBy)).thenReturn(request);
+        when(noteService.search(term, searchInContents, request, exampleUser)).thenReturn(page);
         when(noteMapper.toSummaryDTO(page.toList())).thenReturn(exampleNoteSummaries);
 
         mockMvc.perform(get("/notes/search")
@@ -191,8 +191,8 @@ class NoteControllerTest {
                 .andExpect(content().json(mapper.writeValueAsString(exampleNoteSummaries)));
 
         verify(userService).getAuthenticatedUser();
-        verify(noteService).createPageRequestOf(pageNumber, pageSize, term, sortBy);
-        verify(noteService).searchNotes(term, searchInContents, request, exampleUser);
+        verify(noteService).createPageRequest(pageNumber, pageSize, direction.name(), sortBy);
+        verify(noteService).search(term, searchInContents, request, exampleUser);
         verify(noteMapper).toSummaryDTO(page.toList());
     }
 
@@ -201,28 +201,25 @@ class NoteControllerTest {
     void createNoteShouldReturnLocationOfCreatedResource() throws Exception {
 
         when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
-        when(noteService.createNote(eq(exampleNoteDetail), eq(exampleUser), any())).thenReturn(exampleNote);
+        when(noteService.create(exampleNoteDetail, exampleUser)).thenReturn(exampleNote);
 
         mockMvc.perform(post("/notes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(exampleNoteDetail)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location",
-                        "http://localhost/notes/title/" + exampleNoteDetail.getTitle()));
+                .andExpect(header().string("Location", "http://localhost/notes/title/" + exampleNoteDetail.getTitle()));
 
-        verify(userService).getAuthenticatedUser();
-        verify(noteService).createNote(any(NoteDetailDTO.class), eq(exampleUser), any());
+        verify(userService, times(2)).getAuthenticatedUser();
+        verify(noteService).create(any(NoteDetailDTO.class), eq(exampleUser));
     }
 
     @Test
     @WithMockUser(username = "user", roles = { RoleConstants.USER })
-    void createNoteShouldThrowInvalidNoteIfNoteFieldsHaveErrors() throws Exception {
+    void createNoteShouldThrowNoteValidationIfNoteHasErrors() throws Exception {
 
-        NoteDetailDTO badNoteDetailDTO = new NoteDetailDTO();
+        NoteDetailDTO badNoteDetailDTO = new NoteDetailDTO("");
 
         when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
-        doThrow(new NoteValidationException(mock(Errors.class)))
-                .when(noteService).createNote(eq(badNoteDetailDTO), eq(exampleUser), any());
 
         mockMvc.perform(post("/notes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -231,6 +228,114 @@ class NoteControllerTest {
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoteValidationException));
 
         verify(userService).getAuthenticatedUser();
-        verify(noteService).createNote(eq(badNoteDetailDTO), eq(exampleUser), any());
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = { RoleConstants.USER })
+    void updateNoteShouldReturnUpdatedNote() throws Exception {
+
+        String titleOfNoteToUpdate = faker.lorem().word();
+        exampleNote.setUuid(exampleNoteDetail.getUuid());
+
+        when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
+        when(noteService.findByTitleAndUser(titleOfNoteToUpdate, exampleUser)).thenReturn(Optional.of(exampleNote));
+        when(noteService.updateNoteDetails(titleOfNoteToUpdate, exampleNoteDetail, exampleUser))
+                .thenReturn(exampleNote);
+        when(noteMapper.toDetailDTO(exampleNote)).thenReturn(exampleNoteDetail);
+
+        String content = mapper.writeValueAsString(exampleNoteDetail);
+
+        mockMvc.perform(patch("/notes/title/{title}", titleOfNoteToUpdate)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content))
+                .andExpect(status().isOk())
+                .andExpect(content().json(content));
+
+        verify(userService, times(2)).getAuthenticatedUser();
+        verify(noteService, times(1)).findByTitleAndUser(titleOfNoteToUpdate, exampleUser);
+        verify(noteService, times(1)).findByTitleAndUser(exampleNoteDetail.getTitle(), exampleUser);
+        verify(noteService).updateNoteDetails(titleOfNoteToUpdate, exampleNoteDetail, exampleUser);
+        verify(noteMapper).toDetailDTO(exampleNote);
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = { RoleConstants.USER })
+    void updateNoteShouldThrowNoteValidationIfAnotherNoteWithSameTitleExists() throws Exception {
+
+        String titleOfNoteToUpdate = faker.lorem().word();
+        String newTitleForExistingNote = exampleNoteDetail.getTitle();
+
+        exampleNote.setUuid(exampleNoteDetail.getUuid());
+
+        Note anotherExistingNote = new Note();
+        anotherExistingNote.setUuid(UUID.randomUUID());
+
+        when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
+        when(noteService.findByTitleAndUser(titleOfNoteToUpdate, exampleUser)).thenReturn(Optional.of(exampleNote));
+        when(noteService.findByTitleAndUser(newTitleForExistingNote, exampleUser))
+                .thenReturn(Optional.of(anotherExistingNote));
+
+        mockMvc.perform(patch("/notes/title/{title}", titleOfNoteToUpdate)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(exampleNoteDetail)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoteValidationException));
+
+        verify(userService, times(2)).getAuthenticatedUser();
+        verify(noteService, times(1)).findByTitleAndUser(titleOfNoteToUpdate, exampleUser);
+        verify(noteService, times(1)).findByTitleAndUser(newTitleForExistingNote, exampleUser);
+        verify(noteService, never()).updateNoteDetails(titleOfNoteToUpdate, exampleNoteDetail, exampleUser);
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = { RoleConstants.USER })
+    void updateNoteShouldThrowNoteValidationIfNoteHasErrors() throws Exception {
+
+        String titleOfNoteToUpdate = faker.lorem().word();
+        NoteDetailDTO badNoteDetailDTO = new NoteDetailDTO("");
+
+        when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
+        when(noteService.findByTitleAndUser(titleOfNoteToUpdate, exampleUser)).thenReturn(Optional.of(exampleNote));
+
+        mockMvc.perform(patch("/notes/title/{title}", titleOfNoteToUpdate)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(badNoteDetailDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoteValidationException));
+
+        verify(userService, times(2)).getAuthenticatedUser();
+        verify(noteService, times(1)).findByTitleAndUser(titleOfNoteToUpdate, exampleUser);
+        verify(noteService, never()).updateNoteDetails(titleOfNoteToUpdate, exampleNoteDetail, exampleUser);
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = { RoleConstants.USER })
+    void deleteNoteShouldReturnNoContentOnSuccessfulDeletion() throws Exception {
+
+        String title = faker.lorem().word();
+
+        when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
+
+        mockMvc.perform(delete("/notes/title/{title}", title))
+                .andExpect(status().isNoContent());
+
+        verify(noteService).deleteByTitleAndUser(title, exampleUser);
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = { RoleConstants.USER })
+    void deleteNoteShouldThrowNoteNotFoundIfNoteDoesNotExists() throws Exception {
+
+        String nonExistentTitle = faker.lorem().word();
+
+        when(userService.getAuthenticatedUser()).thenReturn(exampleUser);
+        doThrow(new NoteNotFoundException(nonExistentTitle))
+                .when(noteService).deleteByTitleAndUser(nonExistentTitle, exampleUser);
+
+        mockMvc.perform(delete("/notes/title/{title}", nonExistentTitle))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoteNotFoundException));
+
+        verify(noteService).deleteByTitleAndUser(nonExistentTitle, exampleUser);
     }
 }
