@@ -55,20 +55,21 @@ class AdminUserControllerTest {
     @Autowired
     private Faker faker;
 
+    private User exampleUser;
     private AdminUserDTO exampleUserDTO;
-    private List<AdminUserDTO> exampleUsers;
+    private List<AdminUserDTO> exampleUserDTOs;
 
     private UUID nonExistentUserId;
     private UUID nonExistentRoleId;
 
     @BeforeEach
     void setUp() {
-
+        exampleUser = new User();
         exampleUserDTO = createExampleUserDTO();
 
-        exampleUsers = new ArrayList<>();
+        exampleUserDTOs = new ArrayList<>();
         for (int i = 0; i < 11; i++)
-            exampleUsers.add(createExampleUserDTO());
+            exampleUserDTOs.add(createExampleUserDTO());
 
         nonExistentRoleId = UUID.randomUUID();
         nonExistentUserId = UUID.randomUUID();
@@ -93,8 +94,7 @@ class AdminUserControllerTest {
     @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
     void findAllShouldReturnAllUsersAsAdminUserDTOs() throws Exception {
 
-        User user = new User();
-        List<User> users = Collections.singletonList(user);
+        List<User> users = Collections.singletonList(exampleUser);
         Page<User> page = new PageImpl<>(users);
 
         String sortParam = "uuid";
@@ -103,7 +103,7 @@ class AdminUserControllerTest {
         int sizeParam = 10;
 
         when(userService.listUsers(pageParam, sizeParam, directionParam, sortParam)).thenReturn(page);
-        when(userMapper.toAdminUserDTO(users)).thenReturn(exampleUsers);
+        when(userMapper.toAdminUserDTO(users)).thenReturn(exampleUserDTOs);
 
         mockMvc.perform(get("/admin/users")
                 .param("page", String.valueOf(pageParam))
@@ -111,8 +111,8 @@ class AdminUserControllerTest {
                 .param("direction", directionParam)
                 .param("sort", sortParam))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(exampleUsers)))
-                .andExpect(jsonPath("$", hasSize(exampleUsers.size())));
+                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTOs)))
+                .andExpect(jsonPath("$", hasSize(exampleUserDTOs.size())));
 
         verify(userService).listUsers(pageParam, sizeParam, directionParam, sortParam);
         verify(userMapper).toAdminUserDTO(users);
@@ -123,17 +123,16 @@ class AdminUserControllerTest {
     void findUserByUUIDShouldReturnUserAsAdminUserDTO() throws Exception {
 
         UUID uuid = exampleUserDTO.getUuid();
-        User user = new User();
 
-        when(userService.findById(uuid)).thenReturn(Optional.of(user));
-        when(userMapper.toAdminUserDTO(user)).thenReturn(exampleUserDTO);
+        when(userService.findById(uuid)).thenReturn(Optional.of(exampleUser));
+        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
         mockMvc.perform(get("/admin/users/{id}", uuid))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
 
         verify(userService).findById(uuid);
-        verify(userMapper).toAdminUserDTO(user);
+        verify(userMapper).toAdminUserDTO(exampleUser);
     }
 
     @Test
@@ -155,10 +154,9 @@ class AdminUserControllerTest {
     void updateUserShouldReturnUserAsAdminUserDTO() throws Exception {
 
         UUID uuid = exampleUserDTO.getUuid();
-        User user = new User();
 
-        when(userService.updateFromAdminDTO(uuid, exampleUserDTO)).thenReturn(user);
-        when(userMapper.toAdminUserDTO(user)).thenReturn(exampleUserDTO);
+        when(userService.updateFromAdminDTO(uuid, exampleUserDTO)).thenReturn(exampleUser);
+        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
         String expectedContent = mapper.writeValueAsString(exampleUserDTO);
 
@@ -219,17 +217,16 @@ class AdminUserControllerTest {
 
         UUID userId = exampleUserDTO.getUuid();
         UUID roleId = UUID.randomUUID();
-        User user = new User();
 
-        when(userService.assignRole(userId, roleId)).thenReturn(user);
-        when(userMapper.toAdminUserDTO(user)).thenReturn(exampleUserDTO);
+        when(userService.assignRole(userId, roleId)).thenReturn(exampleUser);
+        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
         mockMvc.perform(post("/admin/users/{userId}/roles/{roleId}", userId, roleId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
 
         verify(userService).assignRole(userId, roleId);
-        verify(userMapper).toAdminUserDTO(user);
+        verify(userMapper).toAdminUserDTO(exampleUser);
     }
 
     @Test
@@ -270,17 +267,16 @@ class AdminUserControllerTest {
 
         UUID userId = exampleUserDTO.getUuid();
         UUID roleId = UUID.randomUUID();
-        User user = new User();
 
-        when(userService.removeRole(userId, roleId)).thenReturn(user);
-        when(userMapper.toAdminUserDTO(user)).thenReturn(exampleUserDTO);
+        when(userService.removeRole(userId, roleId)).thenReturn(exampleUser);
+        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
         mockMvc.perform(delete("/admin/users/{userId}/roles/{roleId}", userId, roleId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
 
         verify(userService).removeRole(userId, roleId);
-        verify(userMapper).toAdminUserDTO(user);
+        verify(userMapper).toAdminUserDTO(exampleUser);
     }
 
     @Test
