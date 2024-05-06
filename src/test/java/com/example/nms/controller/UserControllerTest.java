@@ -24,7 +24,8 @@ import com.example.nms.exception.user.UserValidationException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
+
+import net.datafaker.Faker;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -58,7 +59,7 @@ class UserControllerTest {
 
     private UserDTO createExampleUserDTO() {
 
-        return new UserDTO(UUID.randomUUID(), faker.name().username(), faker.internet().emailAddress(),
+        return new UserDTO(UUID.randomUUID(), faker.internet().username(), faker.internet().emailAddress(),
                 faker.random().nextInt(30));
     }
 

@@ -27,7 +27,8 @@ import com.example.nms.exception.role.RoleIdNotFoundException;
 import com.example.nms.exception.role.RoleValidationException;
 import com.example.nms.service.role.RoleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
+
+import net.datafaker.Faker;
 
 @SpringBootTest
 @AutoConfigureMockMvc

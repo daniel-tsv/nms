@@ -34,4 +34,6 @@ public interface UserService {
     User removeRole(UUID userId, UUID roleId);
 
     User getAuthenticatedUser();
+
+    User createAdminUserIfNotExists(String adminUsername, String adminPassword, String adminEmail);
 }

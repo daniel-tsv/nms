@@ -1,6 +1,5 @@
 package com.example.nms;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.nms.constants.RoleConstants;
 import com.example.nms.entity.Role;
-import com.example.nms.entity.User;
 import com.example.nms.service.role.RoleService;
 import com.example.nms.service.user.UserService;
 
@@ -40,20 +38,8 @@ public class NMSApp {
             if (userRole.isEmpty())
                 roleService.create(new Role(RoleConstants.ROLE_USER));
 
-            Optional<Role> adminRole = roleService.findByName(RoleConstants.ROLE_ADMIN);
-            if (adminRole.isEmpty()) {
-                roleService.create(new Role(RoleConstants.ROLE_ADMIN));
-                adminRole = roleService.findByName(RoleConstants.ROLE_ADMIN);
-            }
-
-            Optional<User> adminUser = userService.findByUsername(adminUsername);
-            if (adminUser.isEmpty() && adminRole.isPresent()) {
-
-                User admin = new User(adminUsername, passwordEncoder.encode(adminPassword), adminEmail,
-                        Collections.singleton(adminRole.get()));
-
-                userService.create(admin);
-            }
+            userService.createAdminUserIfNotExists(
+                    adminUsername, passwordEncoder.encode(adminPassword), adminEmail);
         };
     }
 }

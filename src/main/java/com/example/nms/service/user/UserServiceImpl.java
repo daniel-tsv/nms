@@ -1,6 +1,7 @@
 package com.example.nms.service.user;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.nms.constants.RoleConstants;
 import com.example.nms.dto.AdminUserDTO;
 import com.example.nms.dto.UserDTO;
 import com.example.nms.entity.Role;
@@ -156,5 +158,22 @@ public class UserServiceImpl implements UserService {
         UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
 
         return userDetails.getUser();
+    }
+
+    @Override
+    @Transactional
+    public User createAdminUserIfNotExists(String adminUsername, String adminPassword, String adminEmail) {
+
+        Optional<Role> adminRoleOptional = roleService.findByName(RoleConstants.ROLE_ADMIN);
+        Role adminRole = adminRoleOptional.orElseGet(() -> roleService.create(new Role(RoleConstants.ROLE_ADMIN)));
+
+        Optional<User> existingAdmin = findByUsername(adminUsername);
+        if (existingAdmin.isPresent())
+            return existingAdmin.get();
+
+        User admin = new User(adminUsername, adminPassword, adminEmail,
+                Collections.singleton(adminRole));
+
+        return create(admin);
     }
 }

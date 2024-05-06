@@ -1,7 +1,8 @@
 spring.datasource:
-  url: jdbc:postgresql://localhost:5432/nms
-  username: postgres
-  password: postgres
+  url: ${NMS_DB_URL}
+  username: ${NMS_DB_USERNAME}
+  password: ${NMS_DB_PASSWORD}
+  driver-class-name: org.postgresql.Driver
 
 spring.jpa:
   hibernate.ddl-auto: update
@@ -15,6 +16,6 @@ nms.security:
     token-expiration-millis: 604800000 # 1 week
     token-secret: 11c023y2012nm19c071mycy0m80cm49809ib6v345v4
   admin:
-    username: admin
-    password: admin
-    email: admin@nms.com
+    username: ${NMS_ADMIN_USERNAME}
+    password: ${NMS_ADMIN_PASSWORD}
+    email: ${NMS_ADMIN_EMAIL}

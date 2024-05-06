@@ -22,7 +22,8 @@ import com.example.nms.exception.auth.AuthValidationException;
 import com.example.nms.service.auth.AuthService;
 import com.example.nms.validator.UserDTOValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
+
+import net.datafaker.Faker;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,7 +51,7 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        username = faker.name().username();
+        username = faker.internet().username();
         password = faker.internet().password();
         email = faker.internet().emailAddress();
         token = faker.bothify("?#???????#.?#???????#?.??????#?????#");

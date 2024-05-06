@@ -34,280 +34,281 @@ import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.mapper.UserMapper;
 import com.example.nms.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
+
+import net.datafaker.Faker;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class AdminUserControllerTest {
 
-    @MockBean
-    private UserService userService;
-
-    @MockBean
-    private UserMapper userMapper;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
-    private Faker faker;
-
-    private User exampleUser;
-    private AdminUserDTO exampleUserDTO;
-    private List<AdminUserDTO> exampleUserDTOs;
+        @MockBean
+        private UserService userService;
+
+        @MockBean
+        private UserMapper userMapper;
+
+        @Autowired
+        private MockMvc mockMvc;
+
+        @Autowired
+        private ObjectMapper mapper;
+
+        @Autowired
+        private Faker faker;
+
+        private User exampleUser;
+        private AdminUserDTO exampleUserDTO;
+        private List<AdminUserDTO> exampleUserDTOs;
 
-    private UUID nonExistentUserId;
-    private UUID nonExistentRoleId;
+        private UUID nonExistentUserId;
+        private UUID nonExistentRoleId;
 
-    @BeforeEach
-    void setUp() {
-        exampleUser = new User();
-        exampleUserDTO = createExampleUserDTO();
+        @BeforeEach
+        void setUp() {
+                exampleUser = new User();
+                exampleUserDTO = createExampleUserDTO();
 
-        exampleUserDTOs = new ArrayList<>();
-        for (int i = 0; i < 11; i++)
-            exampleUserDTOs.add(createExampleUserDTO());
+                exampleUserDTOs = new ArrayList<>();
+                for (int i = 0; i < 11; i++)
+                        exampleUserDTOs.add(createExampleUserDTO());
 
-        nonExistentRoleId = UUID.randomUUID();
-        nonExistentUserId = UUID.randomUUID();
-    }
+                nonExistentRoleId = UUID.randomUUID();
+                nonExistentUserId = UUID.randomUUID();
+        }
 
-    private AdminUserDTO createExampleUserDTO() {
+        private AdminUserDTO createExampleUserDTO() {
 
-        return new AdminUserDTO(
-                UUID.randomUUID(),
-                faker.name().username(),
-                faker.internet().emailAddress(),
-                faker.random().nextInt(30),
-                Collections.singleton(new Role(UUID.randomUUID(), RoleConstants.ROLE_USER)),
-                faker.date().past(faker.random().nextInt(1, 365), TimeUnit.DAYS).toInstant(),
-                true,
-                true,
-                true,
-                true);
-    }
+                return new AdminUserDTO(
+                                UUID.randomUUID(),
+                                faker.internet().username(),
+                                faker.internet().emailAddress(),
+                                faker.random().nextInt(30),
+                                Collections.singleton(new Role(UUID.randomUUID(), RoleConstants.ROLE_USER)),
+                                faker.date().past(faker.random().nextInt(1, 365), TimeUnit.DAYS).toInstant(),
+                                true,
+                                true,
+                                true,
+                                true);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void findAllShouldReturnAllUsersAsAdminUserDTOs() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void findAllShouldReturnAllUsersAsAdminUserDTOs() throws Exception {
 
-        List<User> users = Collections.singletonList(exampleUser);
-        Page<User> page = new PageImpl<>(users);
+                List<User> users = Collections.singletonList(exampleUser);
+                Page<User> page = new PageImpl<>(users);
 
-        String sortParam = "uuid";
-        String directionParam = "asc";
-        int pageParam = 0;
-        int sizeParam = 10;
+                String sortParam = "uuid";
+                String directionParam = "asc";
+                int pageParam = 0;
+                int sizeParam = 10;
 
-        when(userService.listUsers(pageParam, sizeParam, directionParam, sortParam)).thenReturn(page);
-        when(userMapper.toAdminUserDTO(users)).thenReturn(exampleUserDTOs);
+                when(userService.listUsers(pageParam, sizeParam, directionParam, sortParam)).thenReturn(page);
+                when(userMapper.toAdminUserDTO(users)).thenReturn(exampleUserDTOs);
 
-        mockMvc.perform(get("/admin/users")
-                .param("page", String.valueOf(pageParam))
-                .param("size", String.valueOf(sizeParam))
-                .param("direction", directionParam)
-                .param("sort", sortParam))
-                .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTOs)))
-                .andExpect(jsonPath("$", hasSize(exampleUserDTOs.size())));
+                mockMvc.perform(get("/admin/users")
+                                .param("page", String.valueOf(pageParam))
+                                .param("size", String.valueOf(sizeParam))
+                                .param("direction", directionParam)
+                                .param("sort", sortParam))
+                                .andExpect(status().isOk())
+                                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTOs)))
+                                .andExpect(jsonPath("$", hasSize(exampleUserDTOs.size())));
 
-        verify(userService).listUsers(pageParam, sizeParam, directionParam, sortParam);
-        verify(userMapper).toAdminUserDTO(users);
-    }
+                verify(userService).listUsers(pageParam, sizeParam, directionParam, sortParam);
+                verify(userMapper).toAdminUserDTO(users);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void findUserByUUIDShouldReturnUserAsAdminUserDTO() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void findUserByUUIDShouldReturnUserAsAdminUserDTO() throws Exception {
 
-        UUID uuid = exampleUserDTO.getUuid();
+                UUID uuid = exampleUserDTO.getUuid();
 
-        when(userService.findById(uuid)).thenReturn(Optional.of(exampleUser));
-        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
+                when(userService.findById(uuid)).thenReturn(Optional.of(exampleUser));
+                when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
-        mockMvc.perform(get("/admin/users/{id}", uuid))
-                .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
+                mockMvc.perform(get("/admin/users/{id}", uuid))
+                                .andExpect(status().isOk())
+                                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
 
-        verify(userService).findById(uuid);
-        verify(userMapper).toAdminUserDTO(exampleUser);
-    }
+                verify(userService).findById(uuid);
+                verify(userMapper).toAdminUserDTO(exampleUser);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void findUserByUUIDShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void findUserByUUIDShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
 
-        doThrow(new UserIdNotFoundException(nonExistentUserId))
-                .when(userService).findById(nonExistentUserId);
+                doThrow(new UserIdNotFoundException(nonExistentUserId))
+                                .when(userService).findById(nonExistentUserId);
 
-        mockMvc.perform(get("/admin/users/{id}", nonExistentUserId))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
+                mockMvc.perform(get("/admin/users/{id}", nonExistentUserId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
 
-        verify(userService).findById(nonExistentUserId);
-    }
+                verify(userService).findById(nonExistentUserId);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void updateUserShouldReturnUserAsAdminUserDTO() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void updateUserShouldReturnUserAsAdminUserDTO() throws Exception {
 
-        UUID uuid = exampleUserDTO.getUuid();
+                UUID uuid = exampleUserDTO.getUuid();
 
-        when(userService.updateFromAdminDTO(uuid, exampleUserDTO)).thenReturn(exampleUser);
-        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
+                when(userService.updateFromAdminDTO(uuid, exampleUserDTO)).thenReturn(exampleUser);
+                when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
-        String expectedContent = mapper.writeValueAsString(exampleUserDTO);
+                String expectedContent = mapper.writeValueAsString(exampleUserDTO);
 
-        mockMvc.perform(patch("/admin/users/{id}", uuid)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(expectedContent))
-                .andExpect(status().isOk())
-                .andExpect(content().json(expectedContent));
+                mockMvc.perform(patch("/admin/users/{id}", uuid)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(expectedContent))
+                                .andExpect(status().isOk())
+                                .andExpect(content().json(expectedContent));
 
-        verify(userService).updateFromAdminDTO(uuid, exampleUserDTO);
-    }
+                verify(userService).updateFromAdminDTO(uuid, exampleUserDTO);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void updateUserShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void updateUserShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
 
-        doThrow(new UserIdNotFoundException(nonExistentUserId))
-                .when(userService).updateFromAdminDTO(nonExistentUserId, exampleUserDTO);
+                doThrow(new UserIdNotFoundException(nonExistentUserId))
+                                .when(userService).updateFromAdminDTO(nonExistentUserId, exampleUserDTO);
 
-        mockMvc.perform(patch("/admin/users/{id}", nonExistentUserId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(exampleUserDTO)))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
+                mockMvc.perform(patch("/admin/users/{id}", nonExistentUserId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(exampleUserDTO)))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
 
-        verify(userService).updateFromAdminDTO(nonExistentUserId, exampleUserDTO);
-    }
+                verify(userService).updateFromAdminDTO(nonExistentUserId, exampleUserDTO);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void deleteUserShouldReturnNoContentIfUserWasSuccessfullyDeleted() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void deleteUserShouldReturnNoContentIfUserWasSuccessfullyDeleted() throws Exception {
 
-        UUID uuid = UUID.randomUUID();
+                UUID uuid = UUID.randomUUID();
 
-        mockMvc.perform(delete("/admin/users/{id}", uuid))
-                .andExpect(status().isNoContent());
+                mockMvc.perform(delete("/admin/users/{id}", uuid))
+                                .andExpect(status().isNoContent());
 
-        verify(userService).deleteById(uuid);
-    }
+                verify(userService).deleteById(uuid);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void deleteUserShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void deleteUserShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
 
-        doThrow(new UserIdNotFoundException(nonExistentUserId))
-                .when(userService).deleteById(nonExistentUserId);
+                doThrow(new UserIdNotFoundException(nonExistentUserId))
+                                .when(userService).deleteById(nonExistentUserId);
 
-        mockMvc.perform(delete("/admin/users/{id}", nonExistentUserId))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
+                mockMvc.perform(delete("/admin/users/{id}", nonExistentUserId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
 
-        verify(userService).deleteById(nonExistentUserId);
-    }
+                verify(userService).deleteById(nonExistentUserId);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void assignRoleShouldReturnUserAsAdminUserDTO() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void assignRoleShouldReturnUserAsAdminUserDTO() throws Exception {
 
-        UUID userId = exampleUserDTO.getUuid();
-        UUID roleId = UUID.randomUUID();
+                UUID userId = exampleUserDTO.getUuid();
+                UUID roleId = UUID.randomUUID();
 
-        when(userService.assignRole(userId, roleId)).thenReturn(exampleUser);
-        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
+                when(userService.assignRole(userId, roleId)).thenReturn(exampleUser);
+                when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
-        mockMvc.perform(post("/admin/users/{userId}/roles/{roleId}", userId, roleId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
+                mockMvc.perform(post("/admin/users/{userId}/roles/{roleId}", userId, roleId))
+                                .andExpect(status().isOk())
+                                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
 
-        verify(userService).assignRole(userId, roleId);
-        verify(userMapper).toAdminUserDTO(exampleUser);
-    }
+                verify(userService).assignRole(userId, roleId);
+                verify(userMapper).toAdminUserDTO(exampleUser);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void assignRoleShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void assignRoleShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
 
-        UUID roleId = UUID.randomUUID();
+                UUID roleId = UUID.randomUUID();
 
-        doThrow(new UserIdNotFoundException(nonExistentUserId))
-                .when(userService).assignRole(nonExistentUserId, roleId);
+                doThrow(new UserIdNotFoundException(nonExistentUserId))
+                                .when(userService).assignRole(nonExistentUserId, roleId);
 
-        mockMvc.perform(post("/admin/users/{userId}/roles/{roleId}", nonExistentUserId, roleId))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
+                mockMvc.perform(post("/admin/users/{userId}/roles/{roleId}", nonExistentUserId, roleId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
 
-        verify(userService).assignRole(nonExistentUserId, roleId);
-    }
+                verify(userService).assignRole(nonExistentUserId, roleId);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void assignRoleShouldThrowRoleIdNotFoundWhenRoleDoesNotExist() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void assignRoleShouldThrowRoleIdNotFoundWhenRoleDoesNotExist() throws Exception {
 
-        UUID userId = UUID.randomUUID();
+                UUID userId = UUID.randomUUID();
 
-        doThrow(new RoleIdNotFoundException(nonExistentRoleId))
-                .when(userService).assignRole(userId, nonExistentRoleId);
+                doThrow(new RoleIdNotFoundException(nonExistentRoleId))
+                                .when(userService).assignRole(userId, nonExistentRoleId);
 
-        mockMvc.perform(post("/admin/users/{userId}/roles/{roleId}", userId, nonExistentRoleId))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RoleIdNotFoundException));
+                mockMvc.perform(post("/admin/users/{userId}/roles/{roleId}", userId, nonExistentRoleId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RoleIdNotFoundException));
 
-        verify(userService).assignRole(userId, nonExistentRoleId);
-    }
+                verify(userService).assignRole(userId, nonExistentRoleId);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void removeRoleShouldReturnUserAsAdminUserDTO() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void removeRoleShouldReturnUserAsAdminUserDTO() throws Exception {
 
-        UUID userId = exampleUserDTO.getUuid();
-        UUID roleId = UUID.randomUUID();
+                UUID userId = exampleUserDTO.getUuid();
+                UUID roleId = UUID.randomUUID();
 
-        when(userService.removeRole(userId, roleId)).thenReturn(exampleUser);
-        when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
+                when(userService.removeRole(userId, roleId)).thenReturn(exampleUser);
+                when(userMapper.toAdminUserDTO(exampleUser)).thenReturn(exampleUserDTO);
 
-        mockMvc.perform(delete("/admin/users/{userId}/roles/{roleId}", userId, roleId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
+                mockMvc.perform(delete("/admin/users/{userId}/roles/{roleId}", userId, roleId))
+                                .andExpect(status().isOk())
+                                .andExpect(content().json(mapper.writeValueAsString(exampleUserDTO)));
 
-        verify(userService).removeRole(userId, roleId);
-        verify(userMapper).toAdminUserDTO(exampleUser);
-    }
+                verify(userService).removeRole(userId, roleId);
+                verify(userMapper).toAdminUserDTO(exampleUser);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void removeRoleShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void removeRoleShouldThrowUserIdNotFoundWhenUserDoesNotExist() throws Exception {
 
-        UUID roleId = UUID.randomUUID();
+                UUID roleId = UUID.randomUUID();
 
-        doThrow(new UserIdNotFoundException(nonExistentUserId))
-                .when(userService).removeRole(nonExistentUserId, roleId);
+                doThrow(new UserIdNotFoundException(nonExistentUserId))
+                                .when(userService).removeRole(nonExistentUserId, roleId);
 
-        mockMvc.perform(delete("/admin/users/{userId}/roles/{roleId}", nonExistentUserId, roleId))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
+                mockMvc.perform(delete("/admin/users/{userId}/roles/{roleId}", nonExistentUserId, roleId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(result.getResolvedException() instanceof UserIdNotFoundException));
 
-        verify(userService).removeRole(nonExistentUserId, roleId);
-    }
+                verify(userService).removeRole(nonExistentUserId, roleId);
+        }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
-    void removeRoleShouldThrowRoleIdNotFoundWhenRoleDoesNotExist() throws Exception {
+        @Test
+        @WithMockUser(username = "admin", roles = { RoleConstants.ADMIN })
+        void removeRoleShouldThrowRoleIdNotFoundWhenRoleDoesNotExist() throws Exception {
 
-        UUID userId = UUID.randomUUID();
+                UUID userId = UUID.randomUUID();
 
-        doThrow(new RoleIdNotFoundException(nonExistentRoleId))
-                .when(userService).removeRole(userId, nonExistentRoleId);
+                doThrow(new RoleIdNotFoundException(nonExistentRoleId))
+                                .when(userService).removeRole(userId, nonExistentRoleId);
 
-        mockMvc.perform(delete("/admin/users/{userId}/roles/{roleId}", userId, nonExistentRoleId))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RoleIdNotFoundException));
+                mockMvc.perform(delete("/admin/users/{userId}/roles/{roleId}", userId, nonExistentRoleId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RoleIdNotFoundException));
 
-        verify(userService).removeRole(userId, nonExistentRoleId);
-    }
+                verify(userService).removeRole(userId, nonExistentRoleId);
+        }
 }
