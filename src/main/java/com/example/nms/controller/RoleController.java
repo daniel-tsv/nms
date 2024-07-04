@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/roles")
+@RequestMapping("/api/admin/roles")
 @RequiredArgsConstructor
 public class RoleController {
 

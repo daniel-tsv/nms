@@ -23,7 +23,7 @@ import com.example.nms.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 public class AdminUserController {
 

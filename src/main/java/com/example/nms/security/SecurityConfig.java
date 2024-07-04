@@ -14,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.example.nms.constants.RoleConstants;
 import com.example.nms.security.jwt.JWTFilter;
@@ -33,14 +35,29 @@ public class SecurityConfig {
     }
 
     @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("*")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
+        };
+    }
+
+    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register").permitAll()
-                        .requestMatchers("/admin/**").hasRole(RoleConstants.ADMIN)
-                        .requestMatchers("/user", "/notes").hasAnyRole(
+                        .requestMatchers("/api/auth/login", "/api/auth/register" ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole(RoleConstants.ADMIN)
+                        .requestMatchers("/api/user", "/api/notes").hasAnyRole(
                                 RoleConstants.USER, RoleConstants.ADMIN)
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session

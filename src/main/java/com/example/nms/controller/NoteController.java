@@ -32,7 +32,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/notes")
+@RequestMapping("/api/notes")
 @RequiredArgsConstructor
 public class NoteController {
 
