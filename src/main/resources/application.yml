@@ -19,3 +19,10 @@ nms.security:
     username: ${NMS_ADMIN_USERNAME}
     password: ${NMS_ADMIN_PASSWORD}
     email: ${NMS_ADMIN_EMAIL}
+
+logging:
+  level:
+    root: WARN
+    com:
+      example:
+        nms: TRACE

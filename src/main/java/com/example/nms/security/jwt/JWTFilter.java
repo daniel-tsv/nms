@@ -1,8 +1,10 @@
 package com.example.nms.security.jwt;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.UUID;
 
+import org.slf4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtProvider;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final Logger logger;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -34,6 +37,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || authHeader.isBlank() || !authHeader.startsWith("Bearer ")) {
+            logRequestDetails(request);
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,5 +59,31 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void logRequestDetails(HttpServletRequest request) {
+        String method = request.getMethod();
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+
+        StringBuilder headers = new StringBuilder();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            headers.append(headerName).append(": ").append(headerValue).append("; ");
+        }
+
+        StringBuilder parameters = new StringBuilder();
+        Enumeration<String> parameterNames = request.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String paramName = parameterNames.nextElement();
+            String paramValue = request.getParameter(paramName);
+            parameters.append(paramName).append("=").append(paramValue).append("&");
+        }
+
+        logger.info(
+                "Got request without auth header: method={}, requestURI={}, queryString={}, headers={}, parameters={}",
+                method, requestURI, queryString, headers.toString(), parameters.toString());
     }
 }
