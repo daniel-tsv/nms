@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class LoggerConfig {
   @Bean
-  public Logger logger() {
+  Logger logger() {
     return LoggerFactory.getLogger(LoggerConfig.class);
   }
 }

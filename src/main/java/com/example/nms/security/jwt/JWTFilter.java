@@ -28,7 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtProvider;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
-    private final Logger logger;
+    private final Logger myLogger;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -82,8 +82,8 @@ public class JWTFilter extends OncePerRequestFilter {
             parameters.append(paramName).append("=").append(paramValue).append("&");
         }
 
-        logger.info(
+        myLogger.info(
                 "Got request without auth header: method={}, requestURI={}, queryString={}, headers={}, parameters={}",
-                method, requestURI, queryString, headers.toString(), parameters.toString());
+                method, requestURI, queryString, headers, parameters);
     }
 }
