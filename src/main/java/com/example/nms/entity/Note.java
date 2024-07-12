@@ -42,7 +42,7 @@ public class Note {
 
     @NotBlank
     @Size(min = 1, max = 255)
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 255, unique = true)
     String title;
 
     @Size(max = 10000)
