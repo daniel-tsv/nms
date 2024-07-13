@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.UUID;
 
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,13 +14,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.nms.constants.MessageConstants;
+import com.example.nms.dto.ErrorResponseDTO;
+import com.example.nms.exception.user.UserIdNotFoundException;
 import com.example.nms.security.UserDetailsServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -29,20 +32,21 @@ public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtProvider;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final Logger myLogger;
+    private final ObjectMapper objectMapper;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || authHeader.isBlank() || !authHeader.startsWith("Bearer ")) {
-            logRequestDetails(request);
-            filterChain.doFilter(request, response);
-            return;
-        }
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws IOException {
 
         try {
+            String authHeader = request.getHeader("Authorization");
+
+            if (authHeader == null || authHeader.isBlank() || !authHeader.startsWith("Bearer ")) {
+                logRequestDetails(request);
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             DecodedJWT decodedJwt = jwtProvider.validateAndDecodeToken(authHeader.substring(7));
 
             UUID uuid = UUID.fromString(jwtProvider.extractUserId(decodedJwt));
@@ -52,13 +56,24 @@ public class JWTFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        } catch (JWTVerificationException e) {
-            // todo return proper response
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                    String.format(MessageConstants.TOKEN_INVALID, e.getMessage()));
+            filterChain.doFilter(request, response);
+        } catch (UserIdNotFoundException ex) {
+            handleException(request, response, ex, HttpStatus.NOT_FOUND);
+        } catch (JWTVerificationException ex) {
+            handleException(request, response, ex, HttpStatus.UNAUTHORIZED);
+        } catch (Exception ex) {
+            handleException(request, response, ex, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        filterChain.doFilter(request, response);
+    }
+
+    // Global exception handler wont catch exceptions thrown at filter level, so we have to do it here
+    private void handleException(HttpServletRequest request, HttpServletResponse response, Exception ex,
+            HttpStatus status) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json");
+        ErrorResponseDTO errorResponse = ErrorResponseDTO.create("Error", ex, request, status);
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 
     private void logRequestDetails(HttpServletRequest request) {
