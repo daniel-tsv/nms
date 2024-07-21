@@ -8,8 +8,9 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    gradle clean build -x test
-    docker compose up --build
+    gradle bootRun
+    #gradle clean build -x test
+    #java -jar nms.jar
     exit
   '';
 }
