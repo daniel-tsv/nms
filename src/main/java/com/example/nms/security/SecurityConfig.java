@@ -22,8 +22,8 @@ import com.example.nms.security.jwt.JWTFilter;
 
 import lombok.RequiredArgsConstructor;
 
-@Configuration
 @EnableWebSecurity
+@Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -40,7 +40,9 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4173", "http://localhost:5173",
+                        .allowedOrigins("http://nms-preview.ddns.net:4173/", "https://nms-preview.ddns.net:4173/",
+                                "http://nms-preview.ddns.net:5173/", "https://nms-preview.ddns.net:5173/",
+                                "http://localhost:4173", "http://localhost:5173",
                                 "https://localhost:4173", "https://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
