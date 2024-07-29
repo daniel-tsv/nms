@@ -1,0 +1,62 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+
+.layout {
+  align-items: center;
+}
+
+.form-container {
+  padding: 4rem 3.4rem;
+  height: fit-content;
+  width: fit-content;
+}
+
+.auth-form__title {
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+.submit-button {
+  margin: 0 auto;
+  width: 70%;
+  padding: 0.6rem 1.75rem;
+  background-color: var(--accent-color);
+}
+
+.submit-button:hover {
+  background-color: var(--accent-color-hover);
+}
+
+.submit-button:active {
+  background-color: var(--accent-color-active);
+}
+
+.login-register-link {
+  background: none;
+  border: none;
+  font-size: medium;
+  text-decoration: underline;
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.login-register-link:hover {
+  color: var(--accent-color);
+}
+
+.error-text {
+  color: var(--danger-color);
+}
+
+.user-field__input {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.user-field__label {
+  text-align: left;
+  margin-left: 0.3rem;
+  display: block;
+  font-size: large;
+  margin-bottom: 0.2rem;
+}

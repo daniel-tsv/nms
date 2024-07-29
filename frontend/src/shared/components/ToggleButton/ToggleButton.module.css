@@ -1,0 +1,40 @@
+/* Block element: ToggleButton */
+.toggle-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.toggle-button__wrapper {
+  display: flex;
+  border-radius: 25px;
+  overflow: hidden;
+  width: 200px;
+}
+
+.toggle-button__option {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  transition: background-color 0.3s;
+  border: none; /* Remove unwanted border */
+}
+
+.toggle-button__option--active {
+  background-color: var(--accent-color);
+}
+
+.toggle-button__option--unselected {
+  background-color: var(--secondary-color);
+}
+
+.toggle-button__option:hover {
+  background-color: var(--accent-color-hover);
+}
+
+.toggle-button__option:active {
+  background-color: var(--accent-color-active);
+}

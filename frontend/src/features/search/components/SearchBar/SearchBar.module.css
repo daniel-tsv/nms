@@ -1,0 +1,16 @@
+.search-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 0.3rem;
+  margin-bottom: 1.3rem;
+}
+
+.search-bar__input {
+  flex-grow: 1;
+  width: 15rem;
+}
+
+.search-options-button {
+  width: 2.5rem;
+  height: 2.5rem;
+}

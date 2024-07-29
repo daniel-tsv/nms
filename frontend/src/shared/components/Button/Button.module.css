@@ -1,0 +1,83 @@
+.button {
+  cursor: pointer;
+  border: none;
+  border-radius: 15px;
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-color);
+  box-shadow: 5px 5px 7px var(--shadow-color);
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.button img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.button--small {
+  /* width: 1rem;
+  height: 1rem; */
+  font-size: 0.75rem;
+}
+.button--medium {
+  /* width: 3rem;
+  height: 3rem; */
+  font-size: 0.875rem;
+}
+.button--big {
+  /* width: 5rem;
+  height: 5rem; */
+  font-size: 1rem;
+}
+.button--max-size {
+  width: 100%;
+  height: 100%;
+  font-size: 1.125rem;
+}
+
+.button--primary {
+  background-color: var(--primary-color);
+}
+.button--primary:hover {
+  background-color: var(--primary-color-hover);
+}
+.button--primary:active {
+  background-color: var(--primary-color-active);
+}
+
+.button--secondary {
+  background-color: var(--secondary-color);
+}
+.button--secondary:hover {
+  background-color: var(--secondary-color-hover);
+}
+.button--secondary:active {
+  background-color: var(--secondary-color-active);
+}
+
+.button--accent {
+  background-color: var(--accent-color);
+}
+.button--accent:hover {
+  background-color: var(--accent-color-hover);
+}
+.button--accent:active {
+  background-color: var(--accent-color-active);
+}
+
+.button--danger {
+  background-color: var(--danger-color);
+}
+.button--danger:hover {
+  background-color: var(--danger-color-hover);
+}
+.button--danger:active {
+  background-color: var(--danger-color-active);
+}

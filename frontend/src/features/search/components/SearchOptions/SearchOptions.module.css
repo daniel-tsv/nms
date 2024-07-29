@@ -1,0 +1,30 @@
+.search-options {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border-radius: 17px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  width: 100%;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.option {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.input {
+  max-width: 3.75rem;
+}
+
+.switch {
+  max-width: 4rem;
+  max-height: 40px;
+}

@@ -1,0 +1,21 @@
+.input {
+  background-color: var(--text-color);
+  color: var(--primary-color);
+  padding: 0.5rem;
+  min-height: 1rem;
+  min-width: 0.3rem;
+  max-height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 18px;
+  font-size: 1.1rem;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input:focus {
+  border-color: var(--text-color-alt);
+  outline: none;
+  box-shadow: 0 0 5px rgb(170, 170, 170, 0.5);
+}

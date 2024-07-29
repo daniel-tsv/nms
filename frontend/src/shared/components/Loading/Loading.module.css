@@ -1,0 +1,26 @@
+.loading {
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: row;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-color: var(--secondary-color-hover);
+}
+
+.loading-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  animation: spin 2.7s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

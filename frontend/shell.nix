@@ -2,12 +2,11 @@
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    gradle
-    jdk17
+    nodejs_22
+    docker
   ];
 
   shellHook = ''
-    gradle bootRun
-    exit
+    npm run dev
   '';
 }

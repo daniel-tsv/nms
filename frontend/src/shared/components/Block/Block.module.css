@@ -1,0 +1,17 @@
+.block {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  box-shadow: 0 0 10px var(--shadow-color-alt);
+  border-radius: 17px;
+  padding: 2rem;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+
+.block:hover {
+  border: 1px solid var(--accent-color);
+}

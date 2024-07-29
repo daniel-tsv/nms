@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--secondary-color);
+  height: 100%;
+  max-width: 25rem;
+  padding: 1rem;
+  border-radius: 15px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border: none;
+}
+
+.panel__header {
+  display: flex;
+  flex-direction: row;
+  gap: 0.3rem;
+  transition: all 0.3s ease;
+  padding-left: 0.3rem;
+  margin-bottom: 0.4rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.panel__header--collapsed {
+  flex-direction: column;
+  padding: 0.4rem;
+  background-color: var(--secondary-color);
+  border-radius: 17px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.panel__toggle-button {
+  max-height: 40px;
+  max-width: 40px;
+  height: 100%;
+  width: 100%;
+  margin-bottom: 0.2rem;
+}

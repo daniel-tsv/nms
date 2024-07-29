@@ -1,0 +1,22 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+html {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout {
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--primary-color);
+  font-family: "Nunito", sans-serif;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}

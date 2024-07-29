@@ -11,7 +11,7 @@ services:
       - db-data:/var/lib/postgresql/data
   backend:
     build:
-      context: backend
+      context: .
       dockerfile: Dockerfile
     environment:
       NMS_DB_URL: jdbc:postgresql://db:5432/nms
@@ -24,13 +24,5 @@ services:
       - db
     ports:
       - "8080:8080"
-  frontend:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    depends_on:
-      - backend
-    ports:
-      - "4173:4173"
 volumes:
   db-data:

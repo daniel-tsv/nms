@@ -1,0 +1,118 @@
+.profile-container {
+  position: relative;
+}
+
+.profile-container__bubble {
+  background-color: var(--secondary-color);
+  background-image: url(/profile.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 3rem; /* Increase icon size */
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  padding: 1.5rem; /* Increase padding for better click area */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  width: 5rem; /* Increase size */
+  height: 5rem; /* Increase size */
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.profile-container__bubble:hover {
+  background-color: var(--secondary-color-hover);
+  transform: scale(1.1);
+}
+
+.profile-container__expanded {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  border: 2px solid var(--accent-color);
+  border-radius: 15px; /* More rounded */
+  padding: 1.5rem;
+  width: 25rem; /* Increased width */
+  max-width: 90vw; /* Responsive */
+  position: absolute;
+  top: 120%; /* Adjusted positioning */
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Increased gap for better spacing */
+}
+
+.profile-container__text {
+  margin: 0;
+  font-size: 1rem; /* Increased font size for readability */
+}
+
+.profile-container__actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem; /* Increased gap between buttons */
+}
+
+.profile-container__button {
+  height: 3rem; /* Increased height */
+  padding: 0.75rem 1.5rem; /* Increased padding */
+  border: none;
+  border-radius: 20px; /* More rounded */
+  cursor: pointer;
+  font-size: 1rem; /* Increased font size */
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.profile-container__button:hover {
+  background-color: var(--secondary-color-hover);
+  transform: scale(1.05);
+}
+
+.profile-container__button:active {
+  background-color: var(--secondary-color-active);
+}
+
+.profile-container__button--active {
+  background-color: var(--accent-color);
+}
+
+.profile-container__button--inactive {
+  background-color: var(--secondary-color-hover);
+  cursor: not-allowed;
+}
+
+.profile-container__button--cancel {
+  background-color: var(--secondary-color);
+}
+
+.profile-container__button--danger {
+  background-color: var(--danger-color);
+  color: var(--text-color-light);
+}
+
+.profile-container__input {
+  margin-bottom: 1.5rem; /* Increased margin */
+  padding: 0.75rem;
+  border-radius: 10px; /* More rounded */
+  border: 1px solid var(--accent-color);
+  font-size: 1rem; /* Increased font size */
+}
+
+@media (max-width: 600px) {
+  .profile-container__expanded {
+    width: 90%;
+    max-width: 90%;
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .profile-container__button {
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .profile-container__input {
+    padding: 0.5rem;
+  }
+}

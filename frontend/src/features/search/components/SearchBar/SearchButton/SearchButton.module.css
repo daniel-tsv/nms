@@ -1,0 +1,17 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+.spin {
+  animation: spin 0.5s linear;
+}
+
+.search-button {
+  width: 2.5rem;
+  height: 2.5rem;
+}
