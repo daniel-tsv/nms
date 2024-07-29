@@ -3,6 +3,7 @@ package com.example.nms.controller;
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.nms.dto.NoteDetailDTO;
 import com.example.nms.dto.NoteSummaryDTO;
+import com.example.nms.dto.NotesPageDTO;
 import com.example.nms.entity.Note;
 import com.example.nms.entity.User;
 import com.example.nms.exception.note.NoteNotFoundException;
@@ -51,20 +53,24 @@ public class NoteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<NoteSummaryDTO>> findAll(
+    public ResponseEntity<NotesPageDTO> findAll(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "direction", defaultValue = "asc") String direction,
             @RequestParam(name = "sortBy", defaultValue = "updatedAt") String sortBy) {
 
         PageRequest request = noteService.createPageRequest(page, size, direction, sortBy);
-        List<Note> notes = noteService.findAll(request, userService.getAuthenticatedUser()).toList();
+        Page<Note> notesPage = noteService.findAll(request, userService.getAuthenticatedUser());
+        List<NoteSummaryDTO> noteSummaryDTOs = noteMapper.toSummaryDTO(notesPage.toList());
 
-        return ResponseEntity.ok(noteMapper.toSummaryDTO(notes));
+        NotesPageDTO notesPageDTO = new NotesPageDTO(noteSummaryDTOs, page, notesPage.getTotalElements(),
+                notesPage.getTotalPages());
+
+        return ResponseEntity.ok(notesPageDTO);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<NoteSummaryDTO>> searchNotes(
+    public ResponseEntity<NotesPageDTO> searchNotes(
             @RequestParam(name = "term") String term,
             @RequestParam(name = "searchInContents", defaultValue = "false") boolean searchInContents,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -73,10 +79,13 @@ public class NoteController {
             @RequestParam(name = "sortBy", defaultValue = "updatedAt") String sortBy) {
 
         PageRequest request = noteService.createPageRequest(page, size, direction, sortBy);
-        List<Note> notes = noteService.search(term, searchInContents, request, userService.getAuthenticatedUser())
-                .toList();
+        Page<Note> notesPage = noteService.search(term, searchInContents, request, userService.getAuthenticatedUser());
+        List<NoteSummaryDTO> noteSummaryDTOs = noteMapper.toSummaryDTO(notesPage.toList());
 
-        return ResponseEntity.ok(noteMapper.toSummaryDTO(notes));
+        NotesPageDTO notesPageDTO = new NotesPageDTO(noteSummaryDTOs, page, notesPage.getTotalElements(),
+                notesPage.getTotalPages());
+
+        return ResponseEntity.ok(notesPageDTO);
     }
 
     @PostMapping
