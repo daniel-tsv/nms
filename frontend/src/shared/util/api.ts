@@ -2,8 +2,11 @@ import axios from "axios";
 import { getToken } from "../../features/auth/util/auth";
 import { ErrorResponseDTO } from "../types";
 
+const baseURL =
+  import.meta.env.VITE_NMS_API_BASE_URL || "http://localhost:8080/api";
+
 export const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL,
 });
 
 api.interceptors.request.use(

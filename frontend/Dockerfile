@@ -1,8 +1,7 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY package.json .
-# or RUN NODE_ENV=development npm i
-RUN npm i
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 RUN npm run build
 EXPOSE 443
