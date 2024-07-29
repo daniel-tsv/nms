@@ -5,5 +5,5 @@ COPY package.json .
 RUN npm i
 COPY . .
 RUN npm run build
-EXPOSE 4173
+EXPOSE 443
 CMD [ "npm", "run", "preview" ]

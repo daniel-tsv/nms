@@ -5,7 +5,7 @@ export const getToken = () => {
 };
 
 export const setToken = (token: string) => {
-  Cookies.set("jwtToken", token, { expires: 7 });
+  Cookies.set("jwtToken", token, { expires: 7, sameSite: "strict" });
 };
 
 export const removeToken = () => {
