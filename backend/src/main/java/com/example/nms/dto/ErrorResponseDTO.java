@@ -29,7 +29,6 @@ public class ErrorResponseDTO {
 
     public static ErrorResponseDTO create(String error, Exception ex, HttpServletRequest request,
             HttpStatus status) {
-        // TODO docker set UTC time
         return new ErrorResponseDTO(error, ex.getMessage(), request.getRequestURI(), status, Instant.now());
     }
 }
