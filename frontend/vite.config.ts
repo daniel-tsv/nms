@@ -1,13 +1,9 @@
-//import basicSsl from "@vitejs/plugin-basic-ssl";
-import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
-  plugins: [react()], //, basicSsl()],
+  plugins: [react()],
   server: {
-    host: true,
-  },
-  preview: {
     host: true,
   },
 });

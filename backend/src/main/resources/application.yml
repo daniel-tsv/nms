@@ -26,3 +26,7 @@ logging:
     com:
       example:
         nms: TRACE
+
+server:
+  port: 8081
+  adress: 0.0.0.0
