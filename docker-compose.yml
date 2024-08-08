@@ -3,8 +3,8 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_DB: nms
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: "${NMS_DB_USERNAME:-nmsuser}"
+      POSTGRES_PASSWORD: "${NMS_DB_PASSWORD:-nmspassword}"
     ports:
       - "5432:5432"
     volumes:
@@ -16,11 +16,11 @@ services:
       dockerfile: Dockerfile
     environment:
       NMS_DB_URL: jdbc:postgresql://db:5432/nms
-      NMS_DB_USERNAME: postgres
-      NMS_DB_PASSWORD: postgres
-      NMS_ADMIN_USERNAME: admin
-      NMS_ADMIN_PASSWORD: admin
-      NMS_ADMIN_EMAIL: admin@nms.com
+      NMS_DB_USERNAME: "${NMS_DB_USERNAME:-nmsuser}"
+      NMS_DB_PASSWORD: "${NMS_DB_PASSWORD:-nmspassword}"
+      NMS_ADMIN_USERNAME: "${NMS_ADMIN_USERNAME:-admin}"
+      NMS_ADMIN_PASSWORD: "${NMS_ADMIN_PASSWORD:-admin}"
+      NMS_ADMIN_EMAIL: "${NMS_ADMIN_EMAIL:-admin@nms.com}"
     depends_on:
       - db
     ports:
@@ -34,8 +34,6 @@ services:
       - backend
     ports:
       - "4173:4173"
-    environment:
-      NODE_ENV: production
 
 volumes:
   db-data:
