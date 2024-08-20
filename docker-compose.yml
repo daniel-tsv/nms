@@ -25,6 +25,7 @@ services:
       - db
     ports:
       - "8081:8081"
+    restart: on-failure
 
   frontend:
     build:
@@ -34,6 +35,7 @@ services:
       - backend
     ports:
       - "4173:4173"
+    restart: on-failure
 
 volumes:
   db-data:

@@ -2,7 +2,7 @@
 
 ## Overview
 
-NMS (Notes Management System) is a web application designed for managing notes. The application includes both a frontend built with modern web technologies and a backend RESTful API. The backend is responsible for user authentication, role-based authorization, and CRUD operations for notes, while the frontend provides user interface for interacting with these features.
+NMS (Note Management System) is a web application designed for managing notes. The application includes both a frontend built with modern web technologies and a backend RESTful API. The backend is responsible for user authentication, role-based authorization, and CRUD operations for notes, while the frontend provides user interface for interacting with these features.
 
 ## Technologies
 
